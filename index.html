@@ -5735,9 +5735,10 @@
     // ── NotebookLM 반자동 연계 ─────────────────────────────────
     // 과목별 NotebookLM 노트북 주소를 채워 넣으세요. 키는 '교과' 드롭다운 값과 정확히 같아야 합니다.
     // 예) "수학": "https://notebooklm.google.com/notebook/xxxxxxxx",
-    // dreamit-chatbot-menu.html 기준. 전용 노트북이 있는 과목만 등록.
-    // (수학·역사·한문·음악·체육·정보·보건·환경은 아직 전용 노트북이 없어 아래 fallback 사용)
-    const notebookLinks = {
+    // 과목별 NotebookLM 주소는 metan-portal의 dreamit-chatbot-menu.html을 '단일 원본'으로 삼아
+    // 페이지 로딩 시 자동으로 읽어옵니다(loadNotebookLinks). 아래 값은 읽기 실패 시 쓰는 fallback.
+    // → 선생님은 dreamit-chatbot-menu.html만 고쳐 커밋하면 이 사이트에도 자동 반영됩니다.
+    let notebookLinks = {
       "국어": "https://notebooklm.google.com/notebook/10a82824-ec02-49e2-b23e-5c5520f0979e/preview",
       "영어": "https://notebooklm.google.com/notebook/86c0341f-f9f2-4479-b058-611541a26316/preview",
       "과학": "https://notebooklm.google.com/notebook/8366fd89-e4e3-4139-af28-80aceeb67ae2/preview",
@@ -5745,8 +5746,9 @@
       "도덕": "https://notebooklm.google.com/notebook/c5e0a22b-8c11-4d67-81bc-63c1fcd8b03f/preview",
       "미술": "https://notebooklm.google.com/notebook/46acd8c3-7ebf-4a54-9b88-a5ef61ba6ca9/preview"
     };
-    // 전용 노트북이 없는 과목이 열 공용 기본 노트북.
-    const notebookFallback = "https://notebooklm.google.com/notebook/ecca1f41-66b9-4251-8034-400497e896c6/preview";
+    let notebookFallback = "https://notebooklm.google.com/notebook/ecca1f41-66b9-4251-8034-400497e896c6/preview";
+    // 원본으로 읽어올 파일(metan-portal / jbot.kr). 과목 배열(subjects)과 defaultNotebookUrl을 파싱.
+    const NOTEBOOK_SOURCE_URL = "https://jbot.kr/dreamit-chatbot-menu.html";
 
     function escapeHTML(value) {
       return String(value)
@@ -6641,6 +6643,29 @@ ${data.promptText}
       showToast("NotebookLM 결과로 각 칸을 채웠습니다");
     }
 
+    // dreamit-chatbot-menu.html에서 과목→NotebookLM 주소를 읽어와 자동 반영.
+    // (그 파일의 subjects 배열과 defaultNotebookUrl을 파싱. 실패하면 하드코딩 fallback 유지.)
+    async function loadNotebookLinks() {
+      try {
+        const res = await fetch(NOTEBOOK_SOURCE_URL, { cache: "no-store" });
+        if (!res.ok) return;
+        const html = await res.text();
+        const def = html.match(/defaultNotebookUrl\s*=\s*"([^"]+)"/);
+        if (def) notebookFallback = def[1];
+        const map = {};
+        const re = /\{\s*name:\s*"([^"]+)"[\s\S]*?url:\s*(?:"([^"]+)"|([A-Za-z_$][\w$]*))\s*\}/g;
+        let m;
+        while ((m = re.exec(html))) {
+          const name = m[1];
+          const url = m[2] ? m[2] : (m[3] === "defaultNotebookUrl" ? notebookFallback : null);
+          if (url) map[name] = url;
+        }
+        if (Object.keys(map).length) notebookLinks = map;
+      } catch (e) {
+        /* 네트워크/CORS 실패 시 하드코딩 기본값 유지 */
+      }
+    }
+
     async function fillWithAI() {
       const btn = $("generateBtn");
       const originalLabel = btn.textContent;
@@ -7083,6 +7108,7 @@ ${data.promptText}
     renderModelOptions();
     renderTools();
     renderLesson();
+    loadNotebookLinks();
   </script>
 </body>
 </html>
