@@ -5744,11 +5744,16 @@
       "과학": "https://notebooklm.google.com/notebook/8366fd89-e4e3-4139-af28-80aceeb67ae2/preview",
       "사회": "https://notebooklm.google.com/notebook/8ef5762d-46d4-4180-9b5c-5f8e747fa59e/preview",
       "도덕": "https://notebooklm.google.com/notebook/c5e0a22b-8c11-4d67-81bc-63c1fcd8b03f/preview",
-      "미술": "https://notebooklm.google.com/notebook/46acd8c3-7ebf-4a54-9b88-a5ef61ba6ca9/preview"
+      "미술": "https://notebooklm.google.com/notebook/46acd8c3-7ebf-4a54-9b88-a5ef61ba6ca9/preview",
+      "생활외국어": "https://notebooklm.google.com/notebook/4a51a2e0-152d-419d-b228-c78e8364c6bc/preview"
     };
     let notebookFallback = "https://notebooklm.google.com/notebook/ecca1f41-66b9-4251-8034-400497e896c6/preview";
     // 원본으로 읽어올 파일(metan-portal / jbot.kr). 과목 배열(subjects)과 defaultNotebookUrl을 파싱.
     const NOTEBOOK_SOURCE_URL = "https://jbot.kr/dreamit-chatbot-menu.html";
+    // dream 교과명 → chatbot 과목명 별칭(이름이 다른 경우 연결).
+    const NOTEBOOK_ALIASES = { "생활외국어": "중국어", "진로와 직업": "진로" };
+    // dream 교과 드롭다운에서 숨길 과목.
+    const HIDDEN_SUBJECTS = new Set(["보건", "환경"]);
 
     function escapeHTML(value) {
       return String(value)
@@ -5982,7 +5987,7 @@
     }
 
     function renderSubjectOptions() {
-      const subjects = Object.keys(achievementData);
+      const subjects = Object.keys(achievementData).filter((s) => !HIDDEN_SUBJECTS.has(s));
       const current = $("subject").value || "정보";
       $("subject").innerHTML = subjects.map((subject) => `
         <option value="${escapeHTML(subject)}" ${subject === current ? "selected" : ""}>${escapeHTML(subject)}</option>
@@ -6659,6 +6664,10 @@ ${data.promptText}
           const name = m[1];
           const url = m[2] ? m[2] : (m[3] === "defaultNotebookUrl" ? notebookFallback : null);
           if (url) map[name] = url;
+        }
+        // 이름이 다른 과목 연결: 생활외국어→중국어, 진로와 직업→진로
+        for (const [dreamName, srcName] of Object.entries(NOTEBOOK_ALIASES)) {
+          if (map[srcName]) map[dreamName] = map[srcName];
         }
         if (Object.keys(map).length) notebookLinks = map;
       } catch (e) {
