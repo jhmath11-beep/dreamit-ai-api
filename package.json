@@ -1,0 +1,9 @@
+{
+  "name": "dreamit-ai-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "꿈it 지도안 도구 전용 독립형 OpenAI 중계 API (Vercel 서버리스 함수)",
+  "engines": {
+    "node": ">=18"
+  }
+}
