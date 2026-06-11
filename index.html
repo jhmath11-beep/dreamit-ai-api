@@ -6609,11 +6609,27 @@ ${data.promptText}
       saveDraft(false);
     }
 
-    // NotebookLM에 보낼 요청문(JSON 출력 강제 + worksheet 포함).
+    // NotebookLM에 보낼 요청문(소스 기반 답변에 맞춘 간결형 + 끝에 JSON 스키마).
+    // 거대한 시스템 프롬프트를 넣으면 소스 기반 엔진과 충돌하므로, 이 수업에 필요한 최소 정보만 담는다.
     function notebookPrompt() {
-      return `${buildAIPrompt()}
+      const data = lessonData();
+      const links = data.careerLinks.filter((item) => item.on).map((item) => item.name).join(", ") || "수업에 맞는 영역 선택";
+      return `업로드된 꿈it(잇)다 수업 모형·진로교육 요소 자료를 근거로 아래 수업의 지도안을 설계해 줘.
 
-위 수업 정보를 바탕으로 이 차시 수업을 설계하고, 결과를 아래 JSON '하나만' 출력하세요. JSON 외의 설명·머리말·코드펜스는 가능하면 쓰지 마세요.
+[수업 정보]
+- 교과/학년: ${data.subject} / ${data.className}
+- 단원/차시: ${data.unit} (${data.period})
+- 학습주제: ${data.topic}
+- 성취기준: ${data.standard}
+- 수업모형: ${data.model.name} (${data.model.steps.join(" → ")})
+- 에듀테크: ${data.tools}
+- 진로교육 요소: ${data.careers.join(", ")}
+- 진로와 직업 연계 영역: ${links}
+
+[만들 것] 수업 디자인 주안점, 차시별 활동 내용, 진로 연계 영역, 꿈it(잇)다 시스템 연계 방법, 단계별(배움열기·배움활동·삶과 연결 짓기·배움정리) 교사·학생 활동과 유의점, 그리고 학생용 활동지(문제 정의 → 아이디어 설계 → 산출물 제작 → 진로 성찰).
+진로 연계는 직업명 나열이 아니라 학생의 역할 경험·역량 발견·삶과의 연결로 표현해 줘.
+
+설계가 끝나면 그 내용을 아래 JSON '하나만'으로 정리해 줘(설명·코드펜스 없이).
 {
   "designPoint": "수업 디자인의 주안점(2~4문장)",
   "chasi": [ { "period": "1차시", "content": "차시별 활동 내용" } ],
@@ -6622,7 +6638,7 @@ ${data.promptText}
   "warmUp":   { "teacher": "교사 활동", "student": "학생 활동", "note": "자료 및 유의점" },
   "activity": { "teacher": "교사 활동", "student": "학생 활동", "note": "자료 및 유의점" },
   "wrapUp":   { "teacher": "교사 활동", "student": "학생 활동", "note": "자료 및 유의점" },
-  "worksheet": "학생용 학습지 내용 전체(문항·활동·빈칸을 줄바꿈 포함 텍스트로)"
+  "worksheet": "학생용 활동지 내용 전체(문항·활동·빈칸을 줄바꿈 포함 텍스트로)"
 }`;
     }
 
