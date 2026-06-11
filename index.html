@@ -6547,6 +6547,30 @@ ${data.promptText}
         r.warmUp && r.activity && r.wrapUp;
     }
 
+    // 문자열 값 안에 들어간 '진짜' 줄바꿈/탭 등 제어문자를 \n \r \t 로 escape.
+    // NotebookLM이 문장 끝에 줄바꿈+마침표를 붙여 보내는 경우 JSON.parse가 깨지므로 보정한다.
+    function escapeRawControlChars(jsonStr) {
+      let out = "";
+      let inStr = false;
+      let escaped = false;
+      for (let i = 0; i < jsonStr.length; i++) {
+        const ch = jsonStr[i];
+        if (inStr) {
+          if (escaped) { out += ch; escaped = false; continue; }
+          if (ch === "\\") { out += ch; escaped = true; continue; }
+          if (ch === '"') { out += ch; inStr = false; continue; }
+          if (ch === "\n") { out += "\\n"; continue; }
+          if (ch === "\r") { out += "\\r"; continue; }
+          if (ch === "\t") { out += "\\t"; continue; }
+          out += ch;
+        } else {
+          if (ch === '"') { inStr = true; }
+          out += ch;
+        }
+      }
+      return out;
+    }
+
     // 붙여넣은 텍스트(코드펜스/잡설 포함 가능)에서 JSON 객체만 추출.
     function extractJSON(text) {
       if (!text) return null;
@@ -6556,7 +6580,10 @@ ${data.promptText}
       const s = t.indexOf("{");
       const e = t.lastIndexOf("}");
       if (s === -1 || e === -1 || e < s) return null;
-      try { return JSON.parse(t.slice(s, e + 1)); } catch (err) { return null; }
+      const slice = t.slice(s, e + 1);
+      try { return JSON.parse(slice); } catch (err) {}
+      // 1차 실패 시: 문자열 안 제어문자를 escape 해서 재시도.
+      try { return JSON.parse(escapeRawControlChars(slice)); } catch (err) { return null; }
     }
 
     async function callAI() {
