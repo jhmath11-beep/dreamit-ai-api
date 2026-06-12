@@ -79,6 +79,17 @@ Drive 문서 본문을 저장해 두면 'AI 수업 추천' 생성 시 그 자료
 - 자료가 많아 프롬프트 예산(약 12000자)을 넘으면, 교과/주제와 관련도가 높은 자료부터 채웁니다.
 - 라우트: `GET /api/reference`(목록), `POST /api/reference`(저장), `DELETE /api/reference?id=`(삭제).
 
+### 대용량 Drive 자료 → RAG(검색 기반)
+교육과정 별책·진로연계 자료집처럼 프롬프트에 통째로 못 넣는 큰 PDF는 붙여넣기 대신
+**인제스트 스크립트**로 한 번에 적재합니다(추출→청크→임베딩→pgvector).
+
+1. Supabase SQL Editor에 `supabase-rag.sql` 실행(pgvector 청크 테이블 + 검색 함수).
+2. `scripts/README.md` 대로 `python scripts/ingest.py --reset` 실행(공개 Drive 폴더 자동 처리).
+3. 이후 'AI 수업 추천' 생성 시 서버가 수업 주제를 임베딩해 관련 청크만 검색·주입합니다.
+
+생성 경로의 자료 우선순위: **RAG(reference_chunks) → 붙여넣기(reference_docs) → 없음**.
+임베딩에 `OPENAI_API_KEY`를 함께 사용합니다.
+
 ## 보안 메모
 - 키는 이 서버의 환경변수에만 있고 브라우저로 내려가지 않습니다.
 - CORS는 데모 편의를 위해 모든 출처(`*`)를 허용합니다. 특정 도메인만 허용하려면 `api/generate.js`의 `setCors`에서 `"*"` 대신 도메인을 넣으세요.

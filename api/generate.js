@@ -128,6 +128,61 @@ async function loadReferenceBlock(userText) {
   }
 }
 
+// RAG: 수업 주제를 임베딩해 Supabase pgvector(reference_chunks)에서 가장 가까운 청크만
+// 가져와 프롬프트 블록을 만든다. pgvector 미설정/오류 시 null을 돌려 호출부가
+// reference_docs(붙여넣기) 폴백으로 넘어가게 한다.
+async function ragReferenceBlock(userText, apiKey) {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_KEY;
+  if (!url || !key || !apiKey) return null;
+  try {
+    const pick = (re) => (userText.match(re) || [])[1] || "";
+    const subject = pick(/-\s*교과:\s*(.+)/);
+    const unit = pick(/-\s*단원명:\s*(.+)/);
+    const topic = pick(/-\s*수업 주제:\s*(.+)/);
+    const standard = pick(/-\s*성취기준:\s*(.+)/);
+    const query = [subject, unit, topic, standard, "진로 연계 수업"].filter(Boolean).join(" ").trim();
+    if (!query) return null;
+
+    const er = await fetch("https://api.openai.com/v1/embeddings", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
+      body: JSON.stringify({ model: "text-embedding-3-small", input: query })
+    });
+    if (!er.ok) return null;
+    const embedding = (await er.json()).data[0].embedding;
+
+    const base = `${url.replace(/\/$/, "")}/rest/v1/rpc/match_reference_chunks`;
+    const rr = await fetch(base, {
+      method: "POST",
+      headers: { apikey: key, Authorization: `Bearer ${key}`, "content-type": "application/json" },
+      body: JSON.stringify({ query_embedding: embedding, match_count: 12 })
+    });
+    if (!rr.ok) return null;
+    const rows = await rr.json();
+    if (!Array.isArray(rows) || !rows.length) return null;
+
+    const parts = [];
+    let used = 0;
+    let count = 0;
+    for (const row of rows) {
+      const body = String(row.content || "").trim();
+      if (!body) continue;
+      const remain = REFERENCE_CHAR_BUDGET - used;
+      if (remain <= 200) break;
+      const clip = body.length > remain ? body.slice(0, remain) + " …(이하 생략)" : body;
+      parts.push(`〔${row.doc_title || "자료"}〕\n${clip}`);
+      used += clip.length;
+      count += 1;
+    }
+    if (!parts.length) return null;
+    const text = `[참고 자료 — 학교 Drive 자료에서 이 수업과 관련해 검색된 발췌입니다. 이 내용과 용어를 근거로 작성하고, 자료에 없는 사실은 지어내지 마세요.]\n\n${parts.join("\n\n")}`;
+    return { text, count };
+  } catch (e) {
+    return null;
+  }
+}
+
 module.exports = async (req, res) => {
   setCors(res);
 
@@ -161,7 +216,8 @@ module.exports = async (req, res) => {
   const model = process.env.OPENAI_MODEL || "gpt-4o";
 
   // Drive 참고자료를 읽어 사용자 프롬프트 앞에 붙인다(설정 안 됐으면 그대로 진행).
-  const reference = await loadReferenceBlock(user);
+  // RAG(pgvector 검색)를 우선 시도하고, 없으면 reference_docs(붙여넣기) 폴백.
+  const reference = (await ragReferenceBlock(user, apiKey)) || (await loadReferenceBlock(user));
   res.setHeader("x-reference-count", String(reference.count));
   const userWithRef = reference.text ? `${reference.text}\n\n----\n\n${user}` : user;
 
