@@ -6919,7 +6919,9 @@ ${data.promptText}
       `;
     }
 
-    function buildDocxXml() {
+    // 지도안에 들어갈 내용을 한곳에서 계산한다. 양식(template) 채우기와
+    // 직접 생성(scratch) 두 경로가 같은 값을 쓰도록 단일 출처로 둔다.
+    function collectLessonContent() {
       const data = lessonData();
       const overview = buildOverview(data);
       const ai = state.ai;
@@ -6942,37 +6944,54 @@ ${data.promptText}
           }).join("\n");
       const warmStage = ai ? "배움열기" : data.model.steps[0];
       const wrapStage = ai ? "배움정리" : data.model.steps[data.model.steps.length - 1];
-
       const careerLinkText = data.careerLinks.map((item) => `${item.on ? "☑" : "☐"} ${item.name}`).join("    ");
+      return {
+        data, overview, ai,
+        docTitle: `[중${data.grade.replace("학년", "")} ${data.subject}] ${data.topic}`,
+        subject: data.subject, grade: data.grade, period: data.period,
+        unit: data.unit, topic: data.topic, standard: data.standard,
+        careerLinkText, dreamitMethod: data.dreamitMethod,
+        designPoint: overview.designPoint, chasiRows: overview.chasiRows,
+        warmProcess: `${warmStage}: ${warmUp.teacher}\n학생은 ${warmUp.student}`, warmNote,
+        actProcess: `${activity}\n평가: ${data.assessment} 방식으로 과정과 산출물을 함께 확인한다.`, actNote,
+        wrapProcess: `${wrapStage}: ${wrapUp.teacher}\n학생은 ${wrapUp.student}`, wrapNote,
+        worksheet: ai && ai.worksheet ? ai.worksheet : "학생용 활동지 첨부 영역: 문제 정의 → 아이디어 설계 → 산출물 제작 → 진로 성찰 순서로 구성합니다."
+      };
+    }
+
+    function buildDocxXml() {
+      const C = collectLessonContent();
       const basicRows = [
-        [docxCell("교과", { shade: true, bold: true }), docxCell(data.subject), docxCell("학년", { shade: true, bold: true }), docxCell(data.grade), docxCell("차시", { shade: true, bold: true }), docxCell(data.period)],
-        [docxCell("단원명", { shade: true, bold: true }), docxCell(data.unit, { span: 5 })],
-        [docxCell("학습주제", { shade: true, bold: true }), docxCell(data.topic, { span: 5 })],
-        [docxCell("연계교과 성취기준", { shade: true, bold: true }), docxCell(data.standard, { span: 5 })],
-        [docxCell("진로와 직업 연계 영역", { shade: true, bold: true }), docxCell(careerLinkText, { span: 5 })],
-        [docxCell("꿈it(잇)다 시스템 연계 방법", { shade: true, bold: true }), docxCell(data.dreamitMethod, { span: 5 })]
+        [docxCell("교과", { shade: true, bold: true }), docxCell(C.subject), docxCell("학년", { shade: true, bold: true }), docxCell(C.grade), docxCell("차시", { shade: true, bold: true }), docxCell(C.period)],
+        [docxCell("단원명", { shade: true, bold: true }), docxCell(C.unit, { span: 5 })],
+        [docxCell("학습주제", { shade: true, bold: true }), docxCell(C.topic, { span: 5 })],
+        [docxCell("연계교과 성취기준", { shade: true, bold: true }), docxCell(C.standard, { span: 5 })],
+        [docxCell("진로와 직업 연계 영역", { shade: true, bold: true }), docxCell(C.careerLinkText, { span: 5 })],
+        [docxCell("꿈it(잇)다 시스템 연계 방법", { shade: true, bold: true }), docxCell(C.dreamitMethod, { span: 5 })]
       ];
 
       const processRows = [
         [docxCell("단계", { shade: true, bold: true }), docxCell("교수·학습과정", { shade: true, bold: true }), docxCell("배움자료 및 유의점", { shade: true, bold: true })],
-        [docxCell("배움열기", { shade: true, bold: true }), docxCell(`${warmStage}: ${warmUp.teacher}\n학생은 ${warmUp.student}`), docxCell(warmNote)],
-        [docxCell("배움활동", { shade: true, bold: true }), docxCell(`${activity}\n평가: ${data.assessment} 방식으로 과정과 산출물을 함께 확인한다.`), docxCell(actNote)],
-        [docxCell("삶과 연결 짓기 및 배움정리", { shade: true, bold: true }), docxCell(`${wrapStage}: ${wrapUp.teacher}\n학생은 ${wrapUp.student}`), docxCell(wrapNote)]
+        [docxCell("배움열기", { shade: true, bold: true }), docxCell(C.warmProcess), docxCell(C.warmNote)],
+        [docxCell("배움활동", { shade: true, bold: true }), docxCell(C.actProcess), docxCell(C.actNote)],
+        [docxCell("삶과 연결 짓기 및 배움정리", { shade: true, bold: true }), docxCell(C.wrapProcess), docxCell(C.wrapNote)]
       ];
 
       const designRows = [
-        [docxCell("수업 디자인의 주안점", { shade: true, bold: true }), docxCell(overview.designPoint, { span: 5 })]
+        [docxCell("수업 디자인의 주안점", { shade: true, bold: true }), docxCell(C.designPoint, { span: 5 })]
       ];
       const chasiTableRows = [
         [docxCell("차시", { shade: true, bold: true }), docxCell("내용", { shade: true, bold: true })],
-        ...overview.chasiRows.map((row) => [docxCell(row.label, { bold: true }), docxCell(row.content)])
+        ...C.chasiRows.map((row) => [docxCell(row.label, { bold: true }), docxCell(row.content)])
       ];
       const photoRows = [
         [docxCell("활동사진1", { shade: true, bold: true }), docxCell("활동사진2", { shade: true, bold: true }), docxCell("활동지", { shade: true, bold: true })],
         [docxCell("(사진 첨부)"), docxCell("(사진 첨부)"), docxCell("(학습지 첨부)")],
         [docxCell("활동 사진 설명"), docxCell("활동 사진 설명"), docxCell("활동 결과물 설명")]
       ];
-      const docTitle = `[중${data.grade.replace("학년", "")} ${data.subject}] ${data.topic}`;
+      const docTitle = C.docTitle;
+      const data = C.data;
+      const ai = C.ai;
 
       return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
@@ -7000,11 +7019,130 @@ ${data.promptText}
         </w:document>`;
     }
 
-    async function downloadLessonDoc() {
-      if (!window.JSZip) {
-        showToast("문서 생성 라이브러리를 불러오지 못했습니다");
-        return;
-      }
+    // ── 학교 제출용 공식 양식(lesson-template.docx)에 내용만 채워 넣는 경로 ──
+    const LESSON_TEMPLATE_URL = "lesson-template.docx";
+    const W_NS = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+    const XML_NS = "http://www.w3.org/XML/1998/namespace";
+
+    function wChildren(parent, qname) {
+      return Array.from(parent.children).filter((el) => el.tagName === qname);
+    }
+    function wCellText(tc) {
+      return Array.from(tc.getElementsByTagName("w:t")).map((t) => t.textContent).join("");
+    }
+    const wNorm = (s) => String(s).replace(/\s+/g, "");
+
+    // 한 셀(w:tc)의 글자만 교체한다. 기존 문단/런 서식(w:pPr, w:rPr)은 본떠서 유지하고
+    // 줄바꿈(\n)은 문단을 나눠 표현한다. 셀 속성(w:tcPr)은 건드리지 않는다.
+    function wSetCellText(tc, text) {
+      const doc = tc.ownerDocument;
+      const ps = wChildren(tc, "w:p");
+      const tmplP = ps[0] || null;
+      const pPr = tmplP ? tmplP.getElementsByTagName("w:pPr")[0] : null;
+      const firstRun = tmplP ? tmplP.getElementsByTagName("w:r")[0] : null;
+      const rPr = firstRun ? firstRun.getElementsByTagName("w:rPr")[0] : null;
+      ps.forEach((p) => tc.removeChild(p));
+      String(text).split("\n").forEach((line) => {
+        const p = doc.createElementNS(W_NS, "w:p");
+        if (pPr) p.appendChild(pPr.cloneNode(true));
+        const r = doc.createElementNS(W_NS, "w:r");
+        if (rPr) r.appendChild(rPr.cloneNode(true));
+        const t = doc.createElementNS(W_NS, "w:t");
+        t.setAttributeNS(XML_NS, "xml:space", "preserve");
+        t.textContent = line;
+        r.appendChild(t);
+        p.appendChild(r);
+        tc.appendChild(p);
+      });
+    }
+
+    function wFillMainTable(rows, C) {
+      rows.forEach((tr) => {
+        const cells = wChildren(tr, "w:tc");
+        const label = wNorm(wCellText(cells[0]));
+        if (label === "교과") {
+          if (cells[1]) wSetCellText(cells[1], C.subject);
+          if (cells[3]) wSetCellText(cells[3], C.grade);
+          if (cells[5]) wSetCellText(cells[5], C.period);
+        } else if (label === "단원명") wSetCellText(cells[1], C.unit);
+        else if (label === "학습주제") wSetCellText(cells[1], C.topic);
+        else if (label === "연계교과성취기준") wSetCellText(cells[1], C.standard);
+        else if (label.startsWith("진로와직업연계")) wSetCellText(cells[1], C.careerLinkText);
+        else if (label.startsWith("꿈it")) wSetCellText(cells[1], C.dreamitMethod);
+        else if (label === "배움열기") { wSetCellText(cells[1], C.warmProcess); wSetCellText(cells[2], C.warmNote); }
+        else if (label === "배움활동") { wSetCellText(cells[1], C.actProcess); wSetCellText(cells[2], C.actNote); }
+        else if (label.startsWith("삶과연결")) { wSetCellText(cells[1], C.wrapProcess); wSetCellText(cells[2], C.wrapNote); }
+      });
+    }
+
+    function wFillChasiTable(tbl, rows, C) {
+      const tmplRow = rows[1] || rows[0];
+      rows.slice(1).forEach((r) => tbl.removeChild(r));
+      C.chasiRows.forEach((row) => {
+        const tr = tmplRow.cloneNode(true);
+        const cells = wChildren(tr, "w:tc");
+        wSetCellText(cells[0], row.label);
+        if (cells[1]) wSetCellText(cells[1], row.content);
+        tbl.appendChild(tr);
+      });
+    }
+
+    function wAppendWorksheet(doc, afterNode, worksheet) {
+      let anchor = afterNode;
+      String(worksheet).split("\n").forEach((line) => {
+        const p = doc.createElementNS(W_NS, "w:p");
+        const r = doc.createElementNS(W_NS, "w:r");
+        const t = doc.createElementNS(W_NS, "w:t");
+        t.setAttributeNS(XML_NS, "xml:space", "preserve");
+        t.textContent = line;
+        r.appendChild(t);
+        p.appendChild(r);
+        anchor.parentNode.insertBefore(p, anchor.nextSibling);
+        anchor = p;
+      });
+    }
+
+    // 공식 양식 docx를 불러와 각 칸에 내용만 채운 blob을 만든다. 실패하면 throw 하여
+    // 호출부가 직접-생성(scratch) 경로로 넘어가게 한다.
+    async function buildTemplateBlob(C) {
+      const res = await fetch(LESSON_TEMPLATE_URL, { cache: "no-store" });
+      if (!res.ok) throw new Error("template fetch failed");
+      const buf = await res.arrayBuffer();
+      const zip = await window.JSZip.loadAsync(buf);
+      const xmlText = await zip.file("word/document.xml").async("string");
+      const doc = new DOMParser().parseFromString(xmlText, "application/xml");
+      if (doc.getElementsByTagName("parsererror").length) throw new Error("template xml parse error");
+
+      const tables = Array.from(doc.getElementsByTagName("w:tbl"));
+      let worksheetAnchor = null;
+      tables.forEach((tbl) => {
+        const rows = wChildren(tbl, "w:tr");
+        if (!rows.length) return;
+        const r0 = wChildren(rows[0], "w:tc");
+        const r0Text = r0.map((c) => wNorm(wCellText(c)));
+
+        // 활동지 머리(Ⅲ … 활동지) 다음에 활동지 본문을 붙인다.
+        if (r0[0] && wCellText(r0[0]).trim() === "Ⅲ") { worksheetAnchor = tbl; return; }
+        // 제목 표: "(과목명)" 예시가 든 셀을 실제 제목으로 교체.
+        const titleCell = rows.flatMap((tr) => wChildren(tr, "w:tc")).find((c) => wCellText(c).includes("과목명"));
+        if (titleCell) { wSetCellText(titleCell, C.docTitle); return; }
+        // 차시별 활동 내용 표.
+        if (r0Text[0] === "차시" && r0Text[1] === "내용") { wFillChasiTable(tbl, rows, C); return; }
+        // 교수·학습 과정안 기본정보 + 단계 표.
+        if (rows.some((tr) => wNorm(wCellText(wChildren(tr, "w:tc")[0])) === "교과")) { wFillMainTable(rows, C); return; }
+        // 수업 디자인의 주안점 칸(1행 1열 빈 표).
+        if (rows.length === 1 && r0.length === 1) { wSetCellText(r0[0], C.designPoint); return; }
+      });
+      if (worksheetAnchor) wAppendWorksheet(doc, worksheetAnchor, C.worksheet);
+
+      let out = new XMLSerializer().serializeToString(doc);
+      if (!out.startsWith("<?xml")) out = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' + out;
+      zip.file("word/document.xml", out);
+      return zip.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+    }
+
+    // 양식 파일을 못 쓸 때(오프라인·로컬 파일 등) 쓰는 직접 생성 경로.
+    async function buildScratchBlob() {
       const zip = new JSZip();
       zip.file("[Content_Types].xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
@@ -7019,10 +7157,25 @@ ${data.promptText}
       zip.folder("word").file("document.xml", buildDocxXml());
       zip.folder("word").folder("_rels").file("document.xml.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>`);
+      return zip.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+    }
 
-      const blob = await zip.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+    async function downloadLessonDoc() {
+      if (!window.JSZip) {
+        showToast("문서 생성 라이브러리를 불러오지 못했습니다");
+        return;
+      }
+      const C = collectLessonContent();
+      let blob;
+      let usedTemplate = true;
+      try {
+        blob = await buildTemplateBlob(C);
+      } catch (e) {
+        usedTemplate = false;
+        blob = await buildScratchBlob();
+      }
       const link = document.createElement("a");
-      const fileName = `${lessonData().subject}_${lessonData().topic}_교수학습과정안.docx`.replace(/[\\/:*?"<>|]/g, "_");
+      const fileName = `${C.subject}_${C.topic}_교수학습과정안.docx`.replace(/[\\/:*?"<>|]/g, "_");
       const url = URL.createObjectURL(blob);
       link.href = url;
       link.download = fileName;
@@ -7030,7 +7183,7 @@ ${data.promptText}
       link.click();
       link.remove();
       URL.revokeObjectURL(url);
-      showToast("Word 문서로 내려받았습니다");
+      showToast(usedTemplate ? "학교 양식 Word 문서로 내려받았습니다" : "Word 문서로 내려받았습니다(기본 양식)");
     }
 
     function showToast(message) {
