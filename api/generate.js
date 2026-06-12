@@ -76,6 +76,56 @@ function setCors(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Expose-Headers", "x-reference-count");
+}
+
+// Supabase에 저장된 Drive 참고자료를 읽어, 수업 주제/교과와 관련도가 높은 순으로
+// 글자수 예산(REFERENCE_CHAR_BUDGET) 안에서 모아 프롬프트에 넣을 블록을 만든다.
+// 환경변수(SUPABASE_URL/KEY)가 없으면 빈 문자열을 돌려 기존 동작을 유지한다.
+const REFERENCE_CHAR_BUDGET = 12000;
+async function loadReferenceBlock(userText) {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_KEY;
+  if (!url || !key) return { text: "", count: 0 };
+  try {
+    const base = `${url.replace(/\/$/, "")}/rest/v1/reference_docs`;
+    const r = await fetch(`${base}?select=title,tags,content&order=created_at.asc`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` }
+    });
+    if (!r.ok) return { text: "", count: 0 };
+    const docs = await r.json();
+    if (!Array.isArray(docs) || !docs.length) return { text: "", count: 0 };
+
+    const subject = (userText.match(/-\s*교과:\s*(.+)/) || [])[1] || "";
+    const topic = (userText.match(/-\s*수업 주제:\s*(.+)/) || [])[1] || "";
+    const keywords = `${subject} ${topic}`.split(/[\s,/]+/).map((s) => s.trim()).filter((s) => s.length >= 2);
+    const score = (d) => {
+      const hay = `${d.title} ${d.tags} ${d.content}`;
+      return keywords.reduce((acc, k) => acc + (hay.includes(k) ? 1 : 0), 0);
+    };
+    const ranked = docs
+      .map((d, i) => ({ d, i, s: score(d) }))
+      .sort((a, b) => (b.s - a.s) || (a.i - b.i));
+
+    const parts = [];
+    let used = 0;
+    let count = 0;
+    for (const { d } of ranked) {
+      const body = String(d.content || "").trim();
+      if (!body) continue;
+      const remain = REFERENCE_CHAR_BUDGET - used;
+      if (remain <= 200) break;
+      const clip = body.length > remain ? body.slice(0, remain) + " …(이하 생략)" : body;
+      parts.push(`〔자료: ${d.title}${d.tags ? ` (${d.tags})` : ""}〕\n${clip}`);
+      used += clip.length;
+      count += 1;
+    }
+    if (!parts.length) return { text: "", count: 0 };
+    const text = `[참고 자료 — 학교가 제공한 Drive 문서 발췌입니다. 이 자료의 내용과 용어를 근거로 작성하고, 자료에 없는 사실은 지어내지 마세요.]\n\n${parts.join("\n\n")}`;
+    return { text, count };
+  } catch (e) {
+    return { text: "", count: 0 };
+  }
 }
 
 module.exports = async (req, res) => {
@@ -110,6 +160,11 @@ module.exports = async (req, res) => {
 
   const model = process.env.OPENAI_MODEL || "gpt-4o";
 
+  // Drive 참고자료를 읽어 사용자 프롬프트 앞에 붙인다(설정 안 됐으면 그대로 진행).
+  const reference = await loadReferenceBlock(user);
+  res.setHeader("x-reference-count", String(reference.count));
+  const userWithRef = reference.text ? `${reference.text}\n\n----\n\n${user}` : user;
+
   try {
     const r = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -121,7 +176,7 @@ module.exports = async (req, res) => {
         model,
         messages: [
           { role: "system", content: system },
-          { role: "user", content: user }
+          { role: "user", content: userWithRef }
         ],
         response_format: {
           type: "json_schema",

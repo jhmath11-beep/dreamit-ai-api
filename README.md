@@ -39,7 +39,7 @@ vercel --prod     # 운영 배포
 ### 공통 — 환경변수 등록 (필수)
 배포한 프로젝트 → **Settings → Environment Variables** 에 추가하고 **Redeploy**:
 - `OPENAI_API_KEY` = (OpenAI 키)  ← 필수. study.jbot.kr에 넣어둔 그 키 값을 그대로 붙여넣어도 됩니다.
-- `OPENAI_MODEL` = `gpt-4o-mini`  ← 선택(안 넣으면 기본값)
+- `OPENAI_MODEL` = `gpt-4o`  ← 선택(안 넣으면 기본값 `gpt-4o`). 비용을 줄이려면 `gpt-4o-mini`.
 
 CLI로 등록하려면:
 ```
@@ -59,6 +59,25 @@ const AI_ENDPOINT = "https://dreamit-ai-api.vercel.app/api/generate";
 ## 테스트
 - 브라우저에서 `https://dreamit-ai-api.vercel.app/api/generate` 열기 → `POST only` 또는 비슷한 메시지가 보이면 살아있는 것(GET이라 거부).
 - 지도안 도구에서 'AI 수업 추천으로 지도안 만들기' → 각 칸이 채워지면 성공.
+
+## 참고자료 라이브러리 (Drive 자료 근거 생성) — Supabase
+
+Drive 문서 본문을 저장해 두면 'AI 수업 추천' 생성 시 그 자료를 **근거**로 각 칸을 채웁니다.
+(NotebookLM 경로는 같은 문서를 NotebookLM 소스로 올려 함께 활용합니다.)
+
+설정 순서:
+1. **Supabase 프로젝트 생성** → 좌측 **SQL Editor** 에 `supabase-schema.sql` 내용을 붙여넣고 Run.
+2. **Project Settings → API** 에서 값 확인 후 Vercel 환경변수에 추가하고 **Redeploy**:
+   - `SUPABASE_URL` = Project URL (`https://xxxx.supabase.co`)
+   - `SUPABASE_SERVICE_KEY` = **service_role** 키(secret) ← 서버 전용, 브라우저에 노출 금지
+   - `REFERENCE_ADMIN_TOKEN` = (선택) 설정하면 자료 저장/삭제 시 이 토큰을 요구
+3. 지도안 도구 화면 좌측 **'참고자료 라이브러리 (Drive 자료)'** 에서 Drive 문서 본문을 붙여넣어 저장.
+   - 저장하면 목록에 뜨고, 'AI 수업 추천' 실행 시 토스트에 **"참고자료 N건 반영"** 으로 표시됩니다.
+
+동작 메모:
+- 환경변수(`SUPABASE_*`)가 없으면 참고자료 주입은 **조용히 생략**되고 기존처럼 동작합니다(깨지지 않음).
+- 자료가 많아 프롬프트 예산(약 12000자)을 넘으면, 교과/주제와 관련도가 높은 자료부터 채웁니다.
+- 라우트: `GET /api/reference`(목록), `POST /api/reference`(저장), `DELETE /api/reference?id=`(삭제).
 
 ## 보안 메모
 - 키는 이 서버의 환경변수에만 있고 브라우저로 내려가지 않습니다.
