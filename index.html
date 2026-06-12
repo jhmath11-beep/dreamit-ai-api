@@ -1318,6 +1318,154 @@
       }
     }
   </style>
+  <style>
+    /* ===== 2026 리뉴얼: 봄/자연 민트-라임 테마 + 탭 구조 ===== */
+    :root {
+      --ink: #20302a;
+      --muted: #6b7770;
+      --line: #e7ece8;
+      --paper: #F7F9F4;
+      --panel: #ffffff;
+      --green: #1A8C73;       /* 진한 민트(완료/텍스트/버튼 그라데이션 시작) */
+      --green-2: #2EC4A9;      /* 기본 민트(주 컬러) */
+      --mint: #E6F7F1;         /* 연한 민트 배경 */
+      --lime: #7DBF47;
+      --violet: #8B7ED8;
+      --primary: #2EC4A9;
+      --primary-deep: #1A8C73;
+      --shadow: 0 2px 12px rgba(0,0,0,0.06);
+      --line-soft: rgba(0,0,0,0.06);
+    }
+    body {
+      font-family: "Noto Sans KR", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif;
+      background: linear-gradient(180deg, #FAFAF7 0, #F7F9F4 40%, #EFF7F1 100%);
+    }
+    h1, h2, h3, label, .badge, .tab, .section-title h2, .section-title h3 {
+      font-family: "Pretendard", "Noto Sans KR", sans-serif;
+    }
+    /* 헤더: 연한 그린~민트 그라데이션 */
+    .topbar {
+      background: linear-gradient(135deg, #E6F7F1 0, #EAF6DE 100%);
+      border-bottom: 1px solid var(--line-soft);
+      backdrop-filter: none;
+    }
+    .topbar h1 { color: var(--primary-deep); }
+    .topbar p { color: #5b6b62; }
+    .brand-mark { background: linear-gradient(135deg, #2EC4A9, #7DBF47); }
+    .status { color: var(--primary-deep); }
+    .status .dot { background: var(--lime); }
+
+    /* 카드/패널 부드럽게 */
+    .panel, .section { border: 1px solid var(--line-soft); box-shadow: var(--shadow); border-radius: 14px; }
+    .section { padding: 20px; }
+    .badge { background: var(--mint); color: var(--primary-deep); border-radius: 999px; }
+    input, select, textarea { border-radius: 10px !important; }
+
+    /* 버튼 */
+    .primary {
+      background: linear-gradient(135deg, #2EC4A9, #1FB29A);
+      box-shadow: 0 6px 14px rgba(46,196,169,.22);
+      border-radius: 12px;
+    }
+    .primary:hover { background: linear-gradient(135deg, #1FB29A, #1A8C73); }
+    .primary.locked, .primary:disabled {
+      background: #d7ddd9 !important; color: #8a948f !important;
+      box-shadow: none !important; cursor: not-allowed !important;
+    }
+    .secondary, .mini-action, .recommend {
+      background: #fff; color: var(--primary-deep);
+      border: 1px solid var(--green-2); border-radius: 10px;
+    }
+    .secondary:hover, .recommend:hover { background: var(--mint); }
+
+    /* 히어로 */
+    .hero { background: linear-gradient(135deg, #ffffff 0, #F3FBF6 100%); }
+    .hero-kicker { background: var(--mint); color: var(--primary-deep); }
+    .pipe-step b { background: linear-gradient(135deg, #2EC4A9, #7DBF47); color: #fff; }
+
+    /* ===== 탭 네비게이션 ===== */
+    .tabnav {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      margin: 4px 0 2px;
+    }
+    .tab {
+      flex: 1 1 0; min-width: 130px;
+      padding: 12px 10px; border: 1px solid var(--line-soft);
+      background: #f2f6f3; color: #6b7770;
+      border-radius: 12px; font-weight: 700; font-size: 13.5px;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: background .15s ease, color .15s ease;
+    }
+    .tab:hover { background: #e9f2ec; }
+    .tab.active { background: var(--primary); color: #fff; border-color: transparent; }
+    .tab.done { background: var(--primary-deep); color: #fff; border-color: transparent; }
+    .tab.done.active { box-shadow: 0 0 0 2px rgba(26,140,115,.25); }
+    .tab .check { display: none; font-weight: 900; }
+    .tab.done .check { display: inline; }
+    .tab .req {
+      font-size: 10px; font-weight: 900; color: #fff;
+      background: #e2574c; padding: 1px 6px; border-radius: 999px;
+    }
+    .tab.active .req, .tab.done .req { background: rgba(255,255,255,.28); }
+    .tabnav-divider { height: 1px; background: var(--line-soft); margin: 10px 0 16px; }
+
+    /* ===== 탭 패널 ===== */
+    .tabpanel { display: none; }
+    .tabpanel.show { display: block; }
+    .tab-footer { margin-top: 16px; display: flex; justify-content: flex-end; }
+    .complete-btn {
+      min-height: 42px; padding: 0 22px; border: 0; border-radius: 12px;
+      background: linear-gradient(135deg, #2EC4A9, #7DBF47); color: #fff; font-weight: 800;
+      box-shadow: 0 6px 14px rgba(125,191,71,.20);
+    }
+    .complete-btn:hover { filter: brightness(.97); }
+    .complete-btn.is-done { background: var(--primary-deep); }
+
+    /* ===== 아코디언 ===== */
+    .accordion { margin-top: 14px; border: 1px solid var(--line-soft); border-radius: 12px; overflow: hidden; background: #fbfdfb; }
+    .acc-head {
+      width: 100%; text-align: left; border: 0; background: transparent;
+      padding: 13px 15px; font-weight: 800; color: var(--primary-deep);
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .acc-ico { transition: transform .2s ease; color: var(--green-2); }
+    .accordion.open .acc-ico { transform: rotate(180deg); }
+    .acc-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+    .accordion.open .acc-body { max-height: 600px; }
+    .acc-body-inner { padding: 0 15px 15px; color: #54635c; font-size: 13px; line-height: 1.6; }
+    .acc-body-inner a { color: var(--green-2); font-weight: 700; }
+
+    /* 자료실 드래그앤드롭 강조 */
+    .template-box { border: 2px dashed var(--green-2); background: #f3fbf7; text-align: left; }
+    .template-box::before { content: "📂  파일을 끌어다 놓거나 선택하세요"; display: block; font-weight: 700; color: var(--primary-deep); margin-bottom: 10px; }
+
+    /* 생성 버튼 경고 */
+    .gen-warning {
+      display: none; margin: 0 0 10px; padding: 11px 14px; border-radius: 10px;
+      background: #fff4f2; color: #c2453a; border: 1px solid #f3c9c3; font-weight: 700; font-size: 13px;
+    }
+
+    /* ===== 지도안 미리보기(접힘→슬라이드 다운) ===== */
+    .reveal {
+      max-height: 0; overflow: hidden; opacity: 0;
+      transition: max-height .45s ease, opacity .35s ease; margin-top: 0;
+    }
+    .reveal.open { max-height: 20000px; opacity: 1; margin-top: 18px; }
+    .reveal-head h2 {
+      display: inline-block; margin: 0 0 4px; font-size: 22px; color: var(--primary-deep);
+      border-bottom: 3px solid var(--green-2); padding-bottom: 4px;
+    }
+    .reveal-sub { color: var(--muted); margin: 6px 0 16px; }
+
+    /* 워크스페이스: 단일 컬럼 900px 중앙 */
+    .workspace { max-width: 900px; width: 100%; }
+
+    @media (max-width: 768px) {
+      .tab { flex: 1 1 calc(50% - 8px); min-width: 0; font-size: 12.5px; padding: 10px 6px; }
+      .section { padding: 15px; }
+      .workspace { padding: 16px 14px 28px; }
+    }
+  </style>
 </head>
 <body>
   <div class="app">
@@ -1356,7 +1504,18 @@
         </div>
       </section>
 
-      <aside class="left" aria-label="수업 설계 입력">
+      <nav class="tabnav" id="tabnav" aria-label="단계 탭">
+        <button class="tab active" type="button" data-tab="basic"><span>수업기본정보</span><span class="check">✓</span></button>
+        <button class="tab" type="button" data-tab="sources"><span>자료실연결</span><span class="check">✓</span></button>
+        <button class="tab" type="button" data-tab="principles"><span>AI 기본 작성 원칙</span><span class="req">필수</span><span class="check">✓</span></button>
+        <button class="tab" type="button" data-tab="model"><span>꿈잇다 수업유형</span><span class="check">✓</span></button>
+        <button class="tab" type="button" data-tab="career"><span>진로연계요소</span><span class="check">✓</span></button>
+        <button class="tab" type="button" data-tab="edutech"><span>에듀테크·지도안 생성</span><span class="check">✓</span></button>
+      </nav>
+      <div class="tabnav-divider"></div>
+
+      <div class="tabwrap">
+        <section class="tabpanel show" data-panel="basic">
         <section class="section action-section">
           <div class="section-title">
             <h2>수업 기본 정보</h2>
@@ -1449,8 +1608,19 @@
             <select id="standard"></select>
           </div>
           <p class="hint">교과를 선택하면 해당 과목의 2022 개정교육과정 성취기준이 드롭다운으로 표시됩니다.</p>
+          <div class="accordion">
+            <button class="acc-head" type="button">꿈잇다 시스템 연계방법 <span class="acc-ico">▾</span></button>
+            <div class="acc-body"><div class="acc-body-inner">
+              꿈잇다 플랫폼(진로진학포털)의 <b>AI 진로설계 · 진로/진학 로드맵 · AI 모의면접</b> 메뉴를 수업 단계와 연결하세요.
+              예: 도입에서 ‘자기이해’ 결과를 활용하고, 정리에서 ‘진학 로드맵 &gt; 학과정보’로 학습 주제와 관련 학과를 탐색하게 합니다.
+              <br><a href="https://dream.jbot.kr" target="_blank" rel="noopener">꿈잇다 시스템 바로가기</a>
+            </div></div>
+          </div>
+          <div class="tab-footer"><button class="complete-btn" type="button" data-complete="basic">완료</button></div>
+        </section>
         </section>
 
+        <section class="tabpanel" data-panel="sources">
         <section class="section">
           <div class="section-title">
             <h3>자료실 연결</h3>
@@ -1471,12 +1641,15 @@
             </div>
           </div>
           <p class="hint">AI 호출용 OpenAI 키는 서버(Vercel 환경변수)에 안전하게 보관되어 사용자가 입력할 필요가 없습니다. ‘<b>AI 수업 추천으로 지도안 만들기</b>’를 누르면 서버를 거쳐 각 칸이 채워집니다. (서버 미연동 시 시뮬레이션으로 동작)</p>
+          <div class="tab-footer"><button class="complete-btn" type="button" data-complete="sources">완료</button></div>
+        </section>
         </section>
 
+        <section class="tabpanel" data-panel="principles">
         <section class="section">
           <div class="section-title">
-            <h3>AI 기본 작성 원칙</h3>
-            <span class="badge">항상 적용</span>
+            <h3>AI 기본 작성 원칙 <span style="color:#e2574c">●</span></h3>
+            <span class="badge" style="background:#fdecea;color:#c2453a">필수</span>
           </div>
           <div class="prompt-box">
             <div class="prompt-toolbar">
@@ -1496,8 +1669,11 @@
             </div>
             <p class="prompt-note">이 내용은 매번 선택하는 질문이 아니라 AI가 항상 지켜야 하는 기본 작성 원칙입니다. AI 연결 시 프로그램에 입력된 수업 정보와 관련 자료를 바탕으로 수업 활동을 먼저 추천하고, 그 결과를 지도안 양식의 각 칸에 채우는 구조로 확장합니다.</p>
           </div>
+          <div class="tab-footer"><button class="complete-btn" type="button" data-complete="principles">원칙 저장 및 완료</button></div>
+        </section>
         </section>
 
+        <section class="tabpanel" data-panel="model">
         <section class="section">
           <div class="section-title">
             <h3>꿈it(잇)다 수업 유형</h3>
@@ -1508,8 +1684,18 @@
             <label for="dreamitMethod">꿈it(잇)다 시스템 연계 방법 <span style="font-weight:700;color:var(--muted)">(연구학교 양식 항목)</span></label>
             <textarea id="dreamitMethod" placeholder="예: 진학 로드맵 &gt; 학과정보 메뉴에서 관심 학과 탐색, 학과별 권장 이수 과목을 데이터로 활용해 수업 활동과 연결"></textarea>
           </div>
+          <div class="accordion">
+            <button class="acc-head" type="button">꿈잇다 시스템 연계방법 — 연구학교 양식 항목 <span class="acc-ico">▾</span></button>
+            <div class="acc-body"><div class="acc-body-inner">
+              연구학교(꿈잇다) 교수·학습 과정안 양식의 <b>‘꿈it(잇)다 시스템 연계 방법’</b> 칸에 들어갈 내용입니다.
+              어떤 수업 모형(탐색형·개발형·융합형·발표형·진로연계형)을 어느 단계에서 활용하는지, 꿈잇다 시스템의 어떤 메뉴를 쓰는지 구체적으로 적습니다.
+            </div></div>
+          </div>
+          <div class="tab-footer"><button class="complete-btn" type="button" data-complete="model">완료</button></div>
+        </section>
         </section>
 
+        <section class="tabpanel" data-panel="career">
         <section class="section">
           <div class="section-title">
             <h3>진로 연계 요소</h3>
@@ -1521,8 +1707,18 @@
             <label>진로와 직업 연계 영역 <span style="font-weight:700;color:var(--muted)">(연구학교 양식 항목)</span></label>
             <div class="chips" id="careerLinkList"></div>
           </div>
+          <div class="accordion">
+            <button class="acc-head" type="button">꿈잇다 시스템 연계방법 — 진로와 직업 연계 영역 <span class="acc-ico">▾</span></button>
+            <div class="acc-body"><div class="acc-body-inner">
+              연구학교 양식의 <b>‘진로와 직업 연계 영역’</b>은 ① 진로와 나의 이해 ② 직업 세계와 진로 탐색 ③ 진로 설계와 실천 중 해당하는 것을 고릅니다.
+              직업명 나열이 아니라 학생의 역할 경험·역량 발견·삶과의 연결로 표현하세요.
+            </div></div>
+          </div>
+          <div class="tab-footer"><button class="complete-btn" type="button" data-complete="career">완료</button></div>
+        </section>
         </section>
 
+        <section class="tabpanel" data-panel="edutech">
         <section class="section">
           <div class="section-title">
             <h3>에듀테크 활용 및 지도안 생성</h3>
@@ -1538,6 +1734,7 @@
               <option>교사 관찰 기록 + 포트폴리오</option>
             </select>
           </div>
+          <div class="gen-warning" id="genWarning">⚠️ AI 기본 작성 원칙을 먼저 작성해주세요</div>
           <button class="primary" id="generateBtn" type="button">AI 수업 추천으로 지도안 만들기</button>
           <div class="secondary-row">
             <button class="secondary" id="resetBtn" type="button">초기 예시</button>
@@ -1587,16 +1784,12 @@
             <div id="refList" style="margin-top:10px"></div>
           </div>
         </section>
-      </aside>
+        </section>
+      </div>
 
-      <section class="right">
-        <div class="overview">
-          <div class="panel brief">
-            <h2>꿈it(잇)다 진로 연계 수업 설계 흐름</h2>
-            <p>교과 성취기준과 수업 주제를 바탕으로 꿈it(잇)다 활동 유형을 고르고, 진로교육 요소와 에듀테크 활용을 연결해 교수·학습 과정안의 핵심 내용을 구성합니다.</p>
-          </div>
-        </div>
-
+      <section class="reveal" id="previewReveal" aria-hidden="true">
+        <div class="reveal-head"><h2>꿈잇다 진로 연계 수업 설계 흐름</h2></div>
+        <p class="reveal-sub">교과 성취기준과 수업 주제를 바탕으로 꿈잇다 활동 유형을 고르고, 진로교육 요소와 에듀테크 활용을 연결해 교수·학습 과정안의 핵심 내용을 구성합니다.</p>
         <article class="panel preview">
           <div class="preview-toolbar">
             <h2>지도안 미리보기</h2>
@@ -7456,6 +7649,69 @@ ${data.promptText}
     renderLesson();
     loadNotebookLinks();
     loadReferenceList();
+
+    /* ===== 탭 전환 / 완료 상태 / 생성 게이팅 / 미리보기 노출 ===== */
+    (function () {
+      const COMPLETE_KEY = "completedTabs";
+      let completedTabs = {};
+      try { completedTabs = JSON.parse(localStorage.getItem(COMPLETE_KEY) || "{}"); } catch (e) { completedTabs = {}; }
+
+      function switchTab(id) {
+        document.querySelectorAll(".tabpanel").forEach((p) => p.classList.toggle("show", p.dataset.panel === id));
+        document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t.dataset.tab === id));
+      }
+      function updateTabStyles() {
+        document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("done", completedTabs[t.dataset.tab] === true));
+        document.querySelectorAll(".complete-btn").forEach((b) => {
+          const id = b.getAttribute("data-complete");
+          const done = completedTabs[id] === true;
+          b.classList.toggle("is-done", done);
+          b.textContent = done ? "완료됨 ✓" : (id === "principles" ? "원칙 저장 및 완료" : "완료");
+        });
+      }
+      function checkGenerateButton() {
+        const ok = completedTabs["principles"] === true;
+        const gb = document.getElementById("generateBtn");
+        const nb = document.getElementById("notebookApplyBtn");
+        const w = document.getElementById("genWarning");
+        if (gb) { gb.disabled = !ok; gb.classList.toggle("locked", !ok); }
+        if (nb) { nb.disabled = !ok; nb.classList.toggle("locked", !ok); }
+        if (w) { w.style.display = ok ? "none" : "block"; }
+      }
+      function markTabComplete(id) {
+        completedTabs[id] = true;
+        localStorage.setItem(COMPLETE_KEY, JSON.stringify(completedTabs));
+        updateTabStyles();
+        checkGenerateButton();
+        if (typeof showToast === "function") showToast("‘완료’로 표시했습니다");
+      }
+      function revealPreview() {
+        const r = document.getElementById("previewReveal");
+        if (!r) return;
+        r.classList.add("open");
+        r.setAttribute("aria-hidden", "false");
+        window.setTimeout(() => r.scrollIntoView({ behavior: "smooth", block: "start" }), 150);
+      }
+
+      document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => switchTab(t.dataset.tab)));
+      document.querySelectorAll("[data-complete]").forEach((b) => b.addEventListener("click", () => {
+        const id = b.getAttribute("data-complete");
+        if (id === "principles") {
+          const ed = document.getElementById("promptEditor");
+          if (ed && !ed.value.trim()) { if (typeof showToast === "function") showToast("기본 작성 원칙을 입력해 주세요"); return; }
+        }
+        markTabComplete(id);
+      }));
+      document.querySelectorAll(".acc-head").forEach((h) => h.addEventListener("click", () => h.parentElement.classList.toggle("open")));
+
+      const gb = document.getElementById("generateBtn");
+      const nb = document.getElementById("notebookApplyBtn");
+      if (gb) gb.addEventListener("click", () => { if (!gb.disabled) revealPreview(); });
+      if (nb) nb.addEventListener("click", () => { if (!nb.disabled) revealPreview(); });
+
+      updateTabStyles();
+      checkGenerateButton();
+    })();
   </script>
 </body>
 </html>
