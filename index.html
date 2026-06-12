@@ -1407,6 +1407,16 @@
       background: #e2574c; padding: 1px 6px; border-radius: 999px;
     }
     .tab.active .req, .tab.done .req { background: rgba(255,255,255,.28); }
+    /* 최종 단계 탭 강조 */
+    .tab.final { border: 1.5px solid var(--lime); }
+    .tab.final:not(.active):not(.done) { background: linear-gradient(135deg, #F4FBEA, #E8F6DD); color: #5a7a2e; }
+    .final-badge { font-size: 10px; font-weight: 900; color: #fff; background: var(--lime); padding: 1px 7px; border-radius: 999px; }
+    .tab.final.active .final-badge, .tab.final.done .final-badge { background: rgba(255,255,255,.3); }
+    .final-note {
+      margin: 0 0 14px; padding: 11px 14px; border-radius: 10px;
+      background: linear-gradient(135deg, #EAF6DE, #E6F7F1); color: #3f6b2f;
+      font-weight: 700; font-size: 13px; border: 1px solid rgba(125,191,71,.3);
+    }
     .tabnav-divider { height: 1px; background: var(--line-soft); margin: 10px 0 16px; }
 
     /* ===== 탭 패널 ===== */
@@ -1505,12 +1515,12 @@
       </section>
 
       <nav class="tabnav" id="tabnav" aria-label="단계 탭">
-        <button class="tab active" type="button" data-tab="basic"><span>수업기본정보</span><span class="check">✓</span></button>
+        <button class="tab active" type="button" data-tab="basic"><span>수업기본정보</span><span class="req">필수</span><span class="check">✓</span></button>
         <button class="tab" type="button" data-tab="sources"><span>자료실연결</span><span class="check">✓</span></button>
         <button class="tab" type="button" data-tab="principles"><span>AI 기본 작성 원칙</span><span class="req">필수</span><span class="check">✓</span></button>
-        <button class="tab" type="button" data-tab="model"><span>꿈잇다 수업유형</span><span class="check">✓</span></button>
-        <button class="tab" type="button" data-tab="career"><span>진로연계요소</span><span class="check">✓</span></button>
-        <button class="tab" type="button" data-tab="edutech"><span>에듀테크·지도안 생성</span><span class="check">✓</span></button>
+        <button class="tab" type="button" data-tab="model"><span>꿈잇다 수업유형</span><span class="req">필수</span><span class="check">✓</span></button>
+        <button class="tab" type="button" data-tab="career"><span>진로연계요소</span><span class="req">필수</span><span class="check">✓</span></button>
+        <button class="tab final" type="button" data-tab="edutech"><span>🏁 에듀테크·지도안 생성</span><span class="final-badge">최종</span><span class="check">✓</span></button>
       </nav>
       <div class="tabnav-divider"></div>
 
@@ -1613,7 +1623,7 @@
             <div class="acc-body"><div class="acc-body-inner">
               꿈잇다 플랫폼(진로진학포털)의 <b>AI 진로설계 · 진로/진학 로드맵 · AI 모의면접</b> 메뉴를 수업 단계와 연결하세요.
               예: 도입에서 ‘자기이해’ 결과를 활용하고, 정리에서 ‘진학 로드맵 &gt; 학과정보’로 학습 주제와 관련 학과를 탐색하게 합니다.
-              <br><a href="https://dream.jbot.kr" target="_blank" rel="noopener">꿈잇다 시스템 바로가기</a>
+              <br><a href="https://jinro.goedu.kr/" target="_blank" rel="noopener">꿈잇다 시스템 바로가기</a>
             </div></div>
           </div>
           <div class="tab-footer"><button class="complete-btn" type="button" data-complete="basic">완료</button></div>
@@ -1721,9 +1731,10 @@
         <section class="tabpanel" data-panel="edutech">
         <section class="section">
           <div class="section-title">
-            <h3>에듀테크 활용 및 지도안 생성</h3>
-            <span class="badge">STEP 5</span>
+            <h3>🏁 에듀테크 활용 및 지도안 생성</h3>
+            <span class="badge" style="background:var(--lime);color:#fff">최종 단계</span>
           </div>
+          <div class="final-note">🏁 <b>최종 단계</b> — 앞의 필수 항목(수업기본정보 · AI 기본 작성 원칙 · 꿈잇다 수업유형 · 진로연계요소)을 완료하면 지도안을 생성하고 Word로 내려받을 수 있어요.</div>
           <div class="chips" id="toolList"></div>
           <div class="field">
             <label for="assessment">평가 방식</label>
@@ -7669,14 +7680,24 @@ ${data.promptText}
           b.textContent = done ? "완료됨 ✓" : (id === "principles" ? "원칙 저장 및 완료" : "완료");
         });
       }
+      const REQUIRED_TABS = [
+        ["basic", "수업기본정보"],
+        ["principles", "AI 기본 작성 원칙"],
+        ["model", "꿈잇다 수업유형"],
+        ["career", "진로연계요소"]
+      ];
       function checkGenerateButton() {
-        const ok = completedTabs["principles"] === true;
+        const missing = REQUIRED_TABS.filter(([id]) => completedTabs[id] !== true).map(([, name]) => name);
+        const ok = missing.length === 0;
         const gb = document.getElementById("generateBtn");
         const nb = document.getElementById("notebookApplyBtn");
         const w = document.getElementById("genWarning");
         if (gb) { gb.disabled = !ok; gb.classList.toggle("locked", !ok); }
         if (nb) { nb.disabled = !ok; nb.classList.toggle("locked", !ok); }
-        if (w) { w.style.display = ok ? "none" : "block"; }
+        if (w) {
+          w.style.display = ok ? "none" : "block";
+          if (!ok) w.textContent = "⚠️ 필수 항목을 먼저 완료해주세요: " + missing.join(", ");
+        }
       }
       function markTabComplete(id) {
         completedTabs[id] = true;
