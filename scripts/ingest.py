@@ -36,11 +36,20 @@ from io import BytesIO
 
 import requests
 
+import unicodedata
+
 try:
     import fitz  # PyMuPDF
 except ImportError:
     print("PyMuPDF가 필요합니다:  pip install pymupdf", file=sys.stderr)
     sys.exit(1)
+
+# 윈도우 콘솔(cp949)에서 한글 출력 시 UnicodeEncodeError가 나지 않도록 UTF-8로 전환.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
 
 DEFAULT_FOLDER = "1d8yE4YtYa5gW43C-chWkLKuX4qFVWGXA"
 EMBED_MODEL = "text-embedding-3-small"
@@ -82,7 +91,7 @@ def list_folder(folder_id):
         if fid in seen:
             continue
         seen.add(fid)
-        pairs.append((fid, title))
+        pairs.append((fid, unicodedata.normalize("NFC", title)))
     return pairs
 
 
@@ -110,6 +119,8 @@ def extract_docx(data):
 
 def clean(text):
     text = text.replace("\u00a0", " ").replace("\u200b", "")
+    # NUL(\x00) \ubc0f \uc904\ubc14\uafc8/\ud0ed\uc744 \ube80 \uc81c\uc5b4\ubb38\uc790 \uc81c\uac70 \u2014 Postgres text \ub294  \uc744 \uc800\uc7a5 \ubabb \ud568.
+    text = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", "", text)
     text = re.sub(r"[ \t]+", " ", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
