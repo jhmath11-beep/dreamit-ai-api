@@ -7,7 +7,7 @@
 //
 // 필요한 환경변수 (이 Vercel 프로젝트 Settings → Environment Variables)
 //   - OPENAI_API_KEY  (필수)  : OpenAI API 키
-//   - OPENAI_MODEL    (선택)  : 기본값 "gpt-4o-mini"
+//   - OPENAI_MODEL    (선택)  : 기본값 "gpt-4o" (작성 원칙 준수도·내용 품질이 mini보다 높음)
 //
 // 호출: POST /api/generate   body: { "system": "...", "user": "..." }
 // 응답: 200  { designPoint, chasi, careerLinks, dreamitMethod, warmUp, activity, wrapUp }
@@ -17,7 +17,7 @@ const LESSON_SCHEMA = {
   type: "object",
   additionalProperties: false,
   properties: {
-    designPoint: { type: "string", description: "수업 디자인의 주안점(2~4문장)" },
+    designPoint: { type: "string", description: "수업 디자인의 주안점. 핵심 의도·성취기준 도달 전략·진로 연계 논리를 5문장 이상으로 구체적으로." },
     chasi: {
       type: "array",
       description: "차시별 활동 내용",
@@ -26,7 +26,7 @@ const LESSON_SCHEMA = {
         additionalProperties: false,
         properties: {
           period: { type: "string", description: "예: 1차시" },
-          content: { type: "string" }
+          content: { type: "string", description: "그 차시의 활동 흐름을 2~3문장으로 구체적으로" }
         },
         required: ["period", "content"]
       }
@@ -36,23 +36,35 @@ const LESSON_SCHEMA = {
       description: "해당하는 진로·직업 연계 영역만 선택",
       items: { type: "string", enum: ["진로와 나의 이해", "직업 세계와 진로 탐색", "진로 설계와 실천"] }
     },
-    dreamitMethod: { type: "string", description: "꿈it(잇)다 시스템 연계 방법" },
+    dreamitMethod: { type: "string", description: "꿈it(잇)다 시스템 연계 방법. 어느 수업 단계에서 어떻게 활용하는지 3문장 이상으로." },
     warmUp: {
       type: "object",
       additionalProperties: false,
-      properties: { teacher: { type: "string" }, student: { type: "string" }, note: { type: "string" } },
+      properties: {
+        teacher: { type: "string", description: "배움열기 교사 활동. 실제 발문을 포함해 3문장 이상으로." },
+        student: { type: "string", description: "배움열기 학생 활동. 실제 수행 과제로 3문장 이상으로." },
+        note: { type: "string", description: "자료·에듀테크 사용법·시간 배분·유의점" }
+      },
       required: ["teacher", "student", "note"]
     },
     activity: {
       type: "object",
       additionalProperties: false,
-      properties: { teacher: { type: "string" }, student: { type: "string" }, note: { type: "string" } },
+      properties: {
+        teacher: { type: "string", description: "배움활동 교사 활동. 실제 발문·기준 제시를 포함해 3~4문장 이상으로." },
+        student: { type: "string", description: "배움활동 학생 활동. 실제 수행 과제로 3~4문장 이상으로." },
+        note: { type: "string", description: "자료·에듀테크 사용법·모둠 구성·평가 관점·유의점" }
+      },
       required: ["teacher", "student", "note"]
     },
     wrapUp: {
       type: "object",
       additionalProperties: false,
-      properties: { teacher: { type: "string" }, student: { type: "string" }, note: { type: "string" } },
+      properties: {
+        teacher: { type: "string", description: "삶과 연결 짓기 및 배움정리 교사 활동. 3문장 이상으로." },
+        student: { type: "string", description: "삶과 연결 짓기 및 배움정리 학생 활동(진로 성찰 포함). 3문장 이상으로." },
+        note: { type: "string", description: "자료·시간 배분·유의점" }
+      },
       required: ["teacher", "student", "note"]
     }
   },
@@ -96,7 +108,7 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
+  const model = process.env.OPENAI_MODEL || "gpt-4o";
 
   try {
     const r = await fetch("https://api.openai.com/v1/chat/completions", {

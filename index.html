@@ -6478,6 +6478,19 @@
       aiAnimateOnce = false;
     }
 
+    // 앱에 정의된 꿈it(잇)다 수업 모형·진로 영역·진로교육 요소를 자료 블록으로 묶는다.
+    // (외부 DB가 없는 경로이므로, 모델이 꿈it(잇)다 용어·틀을 알 수 있게 프롬프트에 직접 넣는다.)
+    function dreamitReference() {
+      const modelLines = models.map((m) => `  · ${m.name}: ${m.description} (단계: ${m.steps.join(" → ")})`).join("\n");
+      return `[꿈it(잇)다·진로 참고 자료 — 이 자료의 용어와 틀을 근거로 작성하세요]
+1) 꿈it(잇)다 수업 모형(유형)
+${modelLines}
+2) 진로와 직업 연계 영역(연구학교 양식): ${careerLinks.join(" / ")}
+3) 진로교육 요소(역량): ${careerElements.join(", ")}
+※ 진로 연계는 직업명 나열이 아니라 학생의 역할 경험·역량 발견·삶과의 연결로 표현합니다.
+※ 꿈it(잇)다 시스템 연계 방법은 교사가 입력한 값을 우선 반영하고, 어느 수업 단계에서 어떻게 쓰는지 구체화하세요.`;
+    }
+
     function buildAIPrompt() {
       const data = lessonData();
       return `연구학교(꿈it(잇)다) 진로 연계 교과 수업을 설계하고, 그 결과를 연구학교 양식(Ⅰ. 수업 개요 / Ⅱ. 교수·학습 과정안 / Ⅲ. 활동지) 전체에 맞춰 작성해 주세요.
@@ -6506,6 +6519,8 @@
 - 지도안 양식 파일: ${data.templateName || "기본 양식"}
 ${data.templateText ? `- 업로드 양식에서 추출한 항목/문장: ${data.templateText}` : "- 업로드 양식 내용: 기본 연구학교 양식 사용"}
 
+${dreamitReference()}
+
 [AI가 항상 참고해야 하는 기본 작성 원칙: ${data.promptName}]
 ${data.promptText}
 
@@ -6530,12 +6545,17 @@ ${data.promptText}
       return `${buildAIPrompt()}
 
 위 정보를 바탕으로 연구학교 양식의 각 칸을 채울 내용을 JSON으로 생성하세요.
-- designPoint: 수업 디자인의 주안점
-- chasi: 차시별 활동 내용(차시 수는 '차시' 값에 맞춰 구성)
+- designPoint: 수업 디자인의 주안점 — 핵심 의도·성취기준 도달 전략·진로 연계 논리를 5문장 이상으로 구체적으로
+- chasi: 차시별 활동 내용(차시 수는 '차시' 값에 맞춰 구성). 각 content는 활동 흐름이 보이도록 2~3문장으로
 - careerLinks: 해당하는 진로·직업 연계 영역만 (최소 1개)
-- dreamitMethod: 꿈it(잇)다 시스템 연계 방법
+- dreamitMethod: 꿈it(잇)다 시스템 연계 방법 — 어느 단계에서 어떻게 활용하는지 3문장 이상으로
 - warmUp / activity / wrapUp: 배움열기·배움활동·삶과 연결 짓기 및 배움정리 단계의 교사 활동(teacher), 학생 활동(student), 자료 및 유의점(note)
-모든 내용은 한국어로, 교사가 바로 사용할 수 있도록 구체적으로 작성하세요.`;
+
+[작성 수준 — 매우 중요]
+실제 교사가 그대로 수업할 수 있을 만큼 구체적이고 풍부하게 쓰세요. 한 줄 요약·추상적 표현은 금지합니다.
+- teacher 칸은 실제 발문("~해 볼까요?")을 포함해 3~4문장 이상, student 칸은 실제 수행 과제로 3~4문장 이상으로 쓰세요.
+- note 칸에는 활용 에듀테크의 구체적 사용법, 모둠 구성, 예상 어려움과 대처, 평가 관점, 대략의 시간 배분을 담으세요.
+모든 내용은 한국어로, 위 분량 기준을 지켜 교사가 바로 사용할 수 있도록 작성하세요.`;
     }
 
     function validAIResult(r) {
@@ -6740,7 +6760,8 @@ ${data.promptText}
             showToast("AI가 각 칸을 채웠습니다");
           } catch (error) {
             applyAIResult(simulateAI(), "시뮬레이션 (AI 호출 실패 시 자동 전환)");
-            showToast("AI 호출에 실패해 시뮬레이션으로 채웠습니다");
+            const reason = String((error && error.message) || error).slice(0, 140);
+            showToast(`AI 호출 실패→시뮬레이션으로 대체: ${reason}`);
           }
         } else {
           await new Promise((resolve) => window.setTimeout(resolve, 400));
