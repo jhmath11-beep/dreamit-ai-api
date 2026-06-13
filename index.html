@@ -1049,6 +1049,11 @@
     .caption-input { width: 100%; border: none; background: transparent; text-align: center; font-size: 12px; color: #5d6b64; font-family: inherit; }
     .caption-input:focus { outline: 1px solid #8fc9ad; border-radius: 3px; }
 
+    /* Ⅲ.활동지 교사 업로드 PDF */
+    .worksheet-toolbar { display: flex; align-items: center; gap: 8px; margin: 6px 0 8px; flex-wrap: wrap; }
+    .worksheet-pdf-name { font-size: 12px; color: #243b32; font-weight: 700; }
+    .worksheet-pdf-frame { width: 100%; height: 520px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+
     .process-table {
       width: 100%;
       min-width: 860px;
@@ -6006,7 +6011,9 @@
         { img: "", caption: "", w: 0, h: 0 },
         { img: "", caption: "", w: 0, h: 0 },
         { img: "", caption: "", w: 0, h: 0 }
-      ]
+      ],
+      // Ⅲ.활동지에 교사가 직접 올리는 PDF. blob URL이라 이번 세션에서만 표시(저장·보관함 제외).
+      worksheetPdf: { url: "", name: "" }
     };
 
     const $ = (id) => document.getElementById(id);
@@ -6191,6 +6198,9 @@
       if (Array.isArray(draft.sources)) state.sources = new Set(draft.sources);
       if (Array.isArray(draft.careers)) state.careers = new Set(draft.careers);
       if (Array.isArray(draft.careerLinks)) state.careerLinks = new Set(draft.careerLinks);
+      // 다른 지도안을 불러오면 이번 세션의 활동지 PDF는 정리한다(스냅샷에 포함 안 됨).
+      if (state.worksheetPdf && state.worksheetPdf.url) URL.revokeObjectURL(state.worksheetPdf.url);
+      state.worksheetPdf = { url: "", name: "" };
       // 보관함 복원 시 깨끗이 덮어쓰도록 항상 3칸을 초기화 후 채운다.
       state.activityMedia = [
         { img: "", caption: "", w: 0, h: 0 },
@@ -6912,7 +6922,15 @@
             </table>
 
             <h4 class="sec-head"><span class="sec-no">Ⅲ</span>활동지</h4>
-            ${(ai && ai.worksheet)
+            <div class="worksheet-toolbar">
+              <label class="media-mini">＋ 활동지 PDF 올리기<input type="file" accept="application/pdf" class="worksheet-file" hidden></label>
+              ${state.worksheetPdf && state.worksheetPdf.url
+                ? `<span class="worksheet-pdf-name">📄 ${escapeHTML(state.worksheetPdf.name)}</span><button type="button" class="media-mini media-del worksheet-del">삭제</button>`
+                : ""}
+            </div>
+            ${(state.worksheetPdf && state.worksheetPdf.url)
+              ? `<iframe class="worksheet-pdf-frame" src="${state.worksheetPdf.url}" title="교사 업로드 활동지 PDF"></iframe>`
+              : (ai && ai.worksheet)
               ? `<div${aiAttr("worksheet-box")}><p><b>${escapeHTML(data.topic)}</b> 활동지</p><p>${escapeHTML(ai.worksheet).replace(/\n/g, "<br>")}</p></div>`
               : `<div class="worksheet-box">
               <p><b>${escapeHTML(data.topic)}</b> 활동지</p>
@@ -7527,7 +7545,9 @@ ${data.promptText}
         warmProcess: `${warmStage}: ${warmUp.teacher}\n학생은 ${warmUp.student}`, warmNote,
         actProcess: `${activity}\n평가: ${data.assessment} 방식으로 과정과 산출물을 함께 확인한다.`, actNote,
         wrapProcess: `${wrapStage}: ${wrapUp.teacher}\n학생은 ${wrapUp.student}`, wrapNote,
-        worksheet: ai && ai.worksheet ? ai.worksheet : "학생용 활동지 첨부 영역: 문제 정의 → 아이디어 설계 → 산출물 제작 → 진로 성찰 순서로 구성합니다."
+        worksheet: (state.worksheetPdf && state.worksheetPdf.url)
+          ? `[교사 업로드 활동지 PDF: ${state.worksheetPdf.name}]\n별도 파일로 출력해 학생에게 배부하세요. (이 Word 문서에는 PDF 원본이 포함되지 않습니다.)`
+          : (ai && ai.worksheet ? ai.worksheet : "학생용 활동지 첨부 영역: 문제 정의 → 아이디어 설계 → 산출물 제작 → 진로 성찰 순서로 구성합니다.")
       };
     }
 
@@ -7614,7 +7634,7 @@ ${data.promptText}
             ${docxTable(processRows)}
             ${docxHeading("Ⅲ. 활동지", 26, 80, "3A3C84")}
             ${docxParagraph(`${data.topic} 활동지`, true)}
-            ${docxParagraph(ai && ai.worksheet ? ai.worksheet : "학생용 활동지 첨부 영역: 문제 정의 → 아이디어 설계 → 산출물 제작 → 진로 성찰 순서로 구성합니다.")}
+            ${docxParagraph(C.worksheet)}
             <w:sectPr>
               <w:pgSz w:w="11906" w:h="16838"/>
               <w:pgMar w:top="425" w:right="425" w:bottom="425" w:left="425" w:header="0" w:footer="0" w:gutter="0"/>
@@ -7865,6 +7885,8 @@ ${data.promptText}
         { img: "", caption: "", w: 0, h: 0 },
         { img: "", caption: "", w: 0, h: 0 }
       ];
+      if (state.worksheetPdf && state.worksheetPdf.url) URL.revokeObjectURL(state.worksheetPdf.url);
+      state.worksheetPdf = { url: "", name: "" };
       state.achievementId = "정보-9정01-01-001";
       state.promptId = "metan-core";
       state.promptText = defaultPromptPresets[0].text;
@@ -7935,6 +7957,18 @@ ${data.promptText}
       const area = $("lessonArea");
       if (!area) return;
       area.addEventListener("change", async (e) => {
+        // Ⅲ.활동지 PDF 업로드(세션 표시 — 저장 안 함). blob URL로 미리보기에 임베드.
+        const ws = e.target.closest(".worksheet-file");
+        if (ws) {
+          const file = ws.files && ws.files[0];
+          if (!file) return;
+          if (file.type !== "application/pdf") { showToast("PDF 파일만 업로드할 수 있습니다"); return; }
+          if (state.worksheetPdf.url) URL.revokeObjectURL(state.worksheetPdf.url);
+          state.worksheetPdf = { url: URL.createObjectURL(file), name: file.name };
+          renderLesson();
+          showToast("활동지 PDF를 올렸습니다 (이번 세션에서만 표시)");
+          return;
+        }
         const input = e.target.closest(".media-file");
         if (!input || !input.files || !input.files[0]) return;
         const idx = Number(input.dataset.idx);
@@ -7949,6 +7983,13 @@ ${data.promptText}
         }
       });
       area.addEventListener("click", (e) => {
+        // 활동지 PDF 삭제(.worksheet-del은 .media-del 스타일을 공유하므로 먼저 처리).
+        if (e.target.closest(".worksheet-del")) {
+          if (state.worksheetPdf.url) URL.revokeObjectURL(state.worksheetPdf.url);
+          state.worksheetPdf = { url: "", name: "" };
+          renderLesson();
+          return;
+        }
         const del = e.target.closest(".media-del");
         if (!del) return;
         const idx = Number(del.dataset.idx);
