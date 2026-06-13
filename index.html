@@ -1685,8 +1685,8 @@
     .pipe-step { background: #ffffff; border: 1px solid rgba(255,255,255,.7); box-shadow: 0 10px 22px rgba(40,30,90,.18); }
     .pipe-step b { background: linear-gradient(135deg, #7C3AED, #22D3EE) !important; color: #fff !important; }
     .pipe-step span { color: #2E2A55; }
-    /* 시작 버튼 = 파이프라인 번호와 동일(비비드 그라데이션) + 또렷한 외곽 */
-    .hero-btn-primary { background: linear-gradient(135deg, #7C3AED, #22D3EE) !important; color: #fff !important; box-shadow: 0 12px 26px rgba(20,12,60,.40) !important; border: 1.5px solid rgba(255,255,255,.7); text-shadow: 0 1px 6px rgba(0,0,0,.25); }
+    /* 시작 버튼 = 민트-에메랄드 그린(사용자 지정 색) + 또렷한 외곽 */
+    .hero-btn-primary { background: linear-gradient(135deg, #46C99A 0%, #2FB488 100%) !important; color: #fff !important; box-shadow: 0 12px 26px rgba(18,90,66,.40) !important; border: 1.5px solid rgba(255,255,255,.75); text-shadow: 0 1px 6px rgba(0,0,0,.22); }
     .hero-btn-ghost { background: rgba(255,255,255,.16) !important; color: #fff !important; border: 1.5px solid rgba(255,255,255,.7) !important; text-shadow: 0 1px 6px rgba(0,0,0,.2); }
     .hero-btn-ghost:hover { background: rgba(255,255,255,.3) !important; }
   </style>
@@ -1703,6 +1703,7 @@
           </div>
         </div>
         <div class="topbar-actions">
+          <button class="topbar-btn" id="openArchiveBtn" type="button">📂 이전 생성 지도안 보기</button>
           <div class="status"><span class="dot"></span>연구학교 시범 운영용</div>
         </div>
       </div>
@@ -1722,7 +1723,7 @@
           </div>
           <div class="hero-cta">
             <a class="hero-btn-primary" href="#tabnav" onclick="document.querySelector('.workspace').classList.remove('builder-collapsed')">🚀 지도안 만들기 시작</a>
-            <button class="hero-btn-ghost" type="button" onclick="openArchiveModal(false)">📂 이전 지도안 보기</button>
+            <button class="hero-btn-ghost" type="button" onclick="openArchiveModal(false)" style="display:none">📂 이전 지도안 보기</button>
           </div>
         </div>
         <div class="pipeline" aria-label="꿈it 진로 연계 지도안 작성 흐름">
