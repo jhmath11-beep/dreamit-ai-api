@@ -1369,7 +1369,7 @@
       --violet: #FBCFE8;       /* 소프트 로즈 보조 accent */
       --primary: #DC2626;      /* 레드: 활성·주동작 */
       --primary-deep: #7F1D1D; /* 딥 마룬: 제목·강조 */
-      --done: #10B981;         /* 에메랄드: 완료 상태(성공 신호, 레드와 구분) */
+      --done: #BE123C;         /* 크림슨: 완료 상태(레드 계열 통일) */
       --accent-rose: #E11D48;  /* 로즈 포인트 */
       --shadow: 0 18px 45px rgba(60,30,30,0.08);
       --line-soft: rgba(170,140,140,0.22);
@@ -1488,14 +1488,14 @@
     }
     .tab .tab-name { flex: 1 1 auto; font-weight: 800; font-size: 13px; color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .tab.active .tab-no { background: rgba(255,255,255,.22); color: #fff; border-color: transparent; }
-    .tab.done .tab-no { background: #fff; color: #059669; border-color: #6EE7B7; }
+    .tab.done .tab-no { background: #fff; color: #BE123C; border-color: #F4B4C0; }
     .tab.done.active .tab-no { background: rgba(255,255,255,.22); color: #fff; border-color: transparent; }
     /* 선택(옵션) 배지 */
     .tab .opt { font-size: 10px; font-weight: 900; color: #475569; background: #EBDADA; padding: 1px 6px; border-radius: 999px; flex: 0 0 auto; }
     .tab.active .opt, .tab.done.active .opt { background: rgba(255,255,255,.28); color: #fff; }
     .tab.active { background: linear-gradient(135deg, #DC2626, #B91C1C); color: #fff; border-color: transparent; box-shadow: 0 6px 16px rgba(220,38,38,.22); }
-    .tab.done { background: #ECFDF5; color: #047857; border-color: #6EE7B7; }
-    .tab.done .check { color: #059669; }
+    .tab.done { background: #FEF2F2; color: #7F1D1D; border-color: #F4B4C0; }
+    .tab.done .check { color: #BE123C; }
     .tab.done.active { background: linear-gradient(135deg, #DC2626, #B91C1C); color: #fff; border-color: transparent; box-shadow: 0 0 0 2px rgba(220,38,38,.28); }
     .tab.done.active .check { color: #fff; }
     .tab .check { display: none; font-weight: 900; }
@@ -1528,8 +1528,8 @@
     .uncomplete-btn:hover { background: var(--mint); }
     .complete-btn {
       min-height: 42px; padding: 0 22px; border: 0; border-radius: 12px;
-      background: linear-gradient(135deg, #10B981, #059669); color: #fff; font-weight: 800;
-      box-shadow: 0 6px 14px rgba(16,185,129,.24);
+      background: linear-gradient(135deg, #E0556B, #BE123C); color: #fff; font-weight: 800;
+      box-shadow: 0 6px 14px rgba(190,18,60,.24);
       transition: filter .15s ease, transform .12s ease;
     }
     .complete-btn:hover { filter: brightness(1.03); transform: translateY(-1px); }
