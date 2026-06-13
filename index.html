@@ -1369,7 +1369,7 @@
       --violet: #8FBF9F;       /* 연두 보조 accent */
       --primary: #E87BA1;      /* 핑크: 활성·주동작 */
       --primary-deep: #C2547B; /* 딥 로즈 */
-      --done: #6FAF87;         /* 연두 그린: 완료 상태(활성 분홍과 구분) */
+      --done: #C2547B;         /* 완료 상태(로즈 — 봄 테마 통일) */
       --shadow: 0 2px 12px rgba(150,90,110,0.10);
       --line-soft: rgba(150,110,90,0.12);
     }
@@ -1437,15 +1437,17 @@
     }
     .tab:hover { background: #F8E6EE; color: var(--primary-deep); transform: translateY(-1px); box-shadow: 0 3px 9px rgba(226,123,161,.14); }
     .tab.active { background: linear-gradient(135deg, #E87BA1, #E06C97); color: #fff; border-color: transparent; }
-    .tab.done { background: linear-gradient(135deg, #6FAF87, #84BE99); color: #fff; border-color: transparent; }
-    .tab.done.active { box-shadow: 0 0 0 2px rgba(111,175,135,.3); }
+    .tab.done { background: #FBE3EC; color: var(--primary-deep); border-color: var(--green-2); }
+    .tab.done .check { color: var(--primary-deep); }
+    .tab.done.active { background: linear-gradient(135deg, #E87BA1, #E06C97); color: #fff; border-color: transparent; box-shadow: 0 0 0 2px rgba(194,84,123,.28); }
+    .tab.done.active .check { color: #fff; }
     .tab .check { display: none; font-weight: 900; }
     .tab.done .check { display: inline; }
     .tab .req {
       font-size: 10px; font-weight: 900; color: #fff;
       background: #e2574c; padding: 1px 6px; border-radius: 999px;
     }
-    .tab.active .req, .tab.done .req { background: rgba(255,255,255,.28); }
+    .tab.active .req, .tab.done.active .req { background: rgba(255,255,255,.28); }
     /* 최종 단계 탭 강조(봄 노랑) */
     .tab.final { border: 1.5px solid var(--lime); }
     .tab.final:not(.active):not(.done) { background: linear-gradient(135deg, #FFF7DD, #FFEFC0); color: #9a7b1e; }
@@ -1469,8 +1471,8 @@
     .uncomplete-btn:hover { background: var(--mint); }
     .complete-btn {
       min-height: 42px; padding: 0 22px; border: 0; border-radius: 12px;
-      background: linear-gradient(135deg, #6FAF87, #8FBF9F); color: #fff; font-weight: 800;
-      box-shadow: 0 6px 14px rgba(111,175,135,.22);
+      background: linear-gradient(135deg, #E07AA0, #C2547B); color: #fff; font-weight: 800;
+      box-shadow: 0 6px 14px rgba(194,84,123,.22);
       transition: filter .15s ease, transform .12s ease;
     }
     .complete-btn:hover { filter: brightness(.97); transform: translateY(-1px); }
