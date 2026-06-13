@@ -7,19 +7,19 @@
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <style>
     :root {
-      --ink: #1a1720;
-      --muted: #6a6571;
-      --line: #dbd8e1;
-      --paper: #f7f6f8;
+      --ink: #17201c;
+      --muted: #65716b;
+      --line: #d8e1dd;
+      --paper: #f6f8f6;
       --panel: #ffffff;
-      --green: #311e50;
-      --green-2: #462b72;
-      --mint: #eee9f5;
-      --blue: #55358a;
+      --green: #135b46;
+      --green-2: #1d8060;
+      --mint: #e9f5ef;
+      --blue: #255e9a;
       --amber: #a85e1d;
       --rose: #9b3d4b;
-      --charcoal: #211b2a;
-      --shadow: 0 16px 36px rgba(39, 34, 48, .08);
+      --charcoal: #1b2a24;
+      --shadow: 0 16px 36px rgba(34, 48, 42, .08);
     }
 
     * {
@@ -31,7 +31,7 @@
       font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif;
       color: var(--ink);
       background:
-        linear-gradient(180deg, #f0eef4 0, #f9f8fa 38%, #f3f2f5 100%);
+        linear-gradient(180deg, #eef4f0 0, #f8faf8 38%, #f2f5f2 100%);
       letter-spacing: 0;
     }
 
@@ -53,8 +53,8 @@
       position: sticky;
       top: 0;
       z-index: 10;
-      background: rgba(248, 247, 250, .92);
-      border-bottom: 1px solid rgba(209, 204, 216, .9);
+      background: rgba(247, 250, 248, .92);
+      border-bottom: 1px solid rgba(204, 216, 210, .9);
       backdrop-filter: blur(14px);
     }
 
@@ -79,7 +79,7 @@
       width: 42px;
       height: 42px;
       border-radius: 8px;
-      background: linear-gradient(135deg, #2f1d4d, #452b70);
+      background: linear-gradient(135deg, #0f5b43, #1e7d5e);
       color: #fff;
       display: grid;
       place-items: center;
@@ -149,7 +149,7 @@
       padding: 22px;
       background:
         linear-gradient(120deg, rgba(255, 255, 255, .96), rgba(255, 255, 255, .82)),
-        linear-gradient(90deg, rgba(49, 30, 80, .17), rgba(85, 53, 138, .13) 58%, rgba(168, 94, 29, .10));
+        linear-gradient(90deg, rgba(19, 91, 70, .17), rgba(37, 94, 154, .13) 58%, rgba(168, 94, 29, .10));
       overflow: hidden;
     }
 
@@ -158,7 +158,7 @@
       align-items: center;
       gap: 8px;
       padding: 7px 10px;
-      border: 1px solid #d4cddf;
+      border: 1px solid #cddfd5;
       border-radius: 8px;
       color: var(--green);
       background: rgba(255, 255, 255, .8);
@@ -175,7 +175,7 @@
 
     .hero p {
       margin: 0;
-      color: #544a63;
+      color: #4c6158;
       font-size: 15px;
       line-height: 1.7;
       font-weight: 700;
@@ -191,10 +191,10 @@
 
     .mission-tags span {
       padding: 8px 10px;
-      border: 1px solid rgba(49, 30, 80, .18);
+      border: 1px solid rgba(19, 91, 70, .18);
       border-radius: 8px;
       background: rgba(255, 255, 255, .76);
-      color: #2f2343;
+      color: #234338;
       font-size: 12px;
       font-weight: 900;
     }
@@ -211,10 +211,10 @@
       gap: 10px;
       align-items: center;
       padding: 11px;
-      border: 1px solid rgba(211, 207, 218, .9);
+      border: 1px solid rgba(207, 218, 212, .9);
       border-radius: 8px;
       background: rgba(255, 255, 255, .86);
-      box-shadow: 0 8px 18px rgba(48, 42, 58, .05);
+      box-shadow: 0 8px 18px rgba(42, 58, 51, .05);
     }
 
     .pipe-step b {
@@ -223,13 +223,13 @@
       border-radius: 8px;
       display: grid;
       place-items: center;
-      background: #26183e;
+      background: #173f32;
       color: #fff;
       font-size: 13px;
     }
 
     .pipe-step span {
-      color: #383044;
+      color: #30443b;
       font-size: 13px;
       font-weight: 850;
       line-height: 1.4;
@@ -342,7 +342,7 @@
     }
 
     label {
-      color: #393442;
+      color: #34423c;
       font-size: 12px;
       font-weight: 900;
       line-height: 1.35;
@@ -350,9 +350,9 @@
 
     input, select, textarea {
       width: 100%;
-      border: 1px solid #d3cfda;
+      border: 1px solid #cfdad4;
       border-radius: 8px;
-      background: #fcfbfd;
+      background: #fbfdfc;
       color: var(--ink);
       padding: 11px 12px;
       outline: none;
@@ -395,7 +395,7 @@
     input:focus, select:focus, textarea:focus {
       border-color: var(--green-2);
       background: #fff;
-      box-shadow: 0 0 0 3px rgba(76, 46, 123, .14);
+      box-shadow: 0 0 0 3px rgba(31, 138, 100, .14);
     }
 
     .model-list {
@@ -409,7 +409,7 @@
       grid-template-columns: 1fr;
       gap: 9px;
       padding: 11px;
-      border: 1px solid #dbd7e1;
+      border: 1px solid #d7e1dc;
       border-radius: 8px;
       background: #fff;
       min-height: 118px;
@@ -444,10 +444,10 @@
       align-items: center;
       gap: 6px;
       padding: 8px 9px;
-      border: 1px solid #dbd7e1;
+      border: 1px solid #d7e1dc;
       border-radius: 999px;
       background: #fff;
-      color: #3c3547;
+      color: #354740;
       font-size: 12px;
       font-weight: 800;
     }
@@ -466,11 +466,11 @@
       background: linear-gradient(135deg, var(--green), var(--green-2));
       color: #fff;
       font-weight: 900;
-      box-shadow: 0 10px 18px rgba(58, 35, 94, .18);
+      box-shadow: 0 10px 18px rgba(22, 107, 79, .18);
     }
 
     .primary:hover {
-      background: linear-gradient(135deg, #291943, #3c2561);
+      background: linear-gradient(135deg, #104c3b, #176f53);
     }
 
     .secondary-row {
@@ -489,9 +489,9 @@
     .template-box {
       margin-top: 12px;
       padding: 13px;
-      border: 1px solid #dbd7e1;
+      border: 1px solid #d7e1dc;
       border-radius: 8px;
-      background: #f9f8fb;
+      background: #f8fbf9;
     }
 
     .prompt-box {
@@ -509,13 +509,13 @@
     .prompt-editor {
       min-height: 150px;
       background:
-        linear-gradient(180deg, #ffffff, #fcfbfd);
-      border-color: #cdc7d6;
+        linear-gradient(180deg, #ffffff, #fbfdfc);
+      border-color: #c7d6cf;
     }
 
     .prompt-note {
       margin: 0;
-      color: #5f5968;
+      color: #596861;
       font-size: 12px;
       line-height: 1.55;
       font-weight: 750;
@@ -533,7 +533,7 @@
       position: relative;
       min-height: 102px;
       padding: 12px;
-      border: 1px solid #dbd7e1;
+      border: 1px solid #d7e1dc;
       border-radius: 8px;
       background: #fff;
     }
@@ -543,7 +543,7 @@
       align-items: center;
       gap: 8px;
       margin-bottom: 8px;
-      color: #251d33;
+      color: #1d3329;
       font-size: 13px;
       font-weight: 950;
     }
@@ -556,7 +556,7 @@
 
     .source-card p {
       margin: 0;
-      color: #666070;
+      color: #607068;
       font-size: 11px;
       line-height: 1.5;
       font-weight: 750;
@@ -571,7 +571,7 @@
 
     .hint {
       margin: 10px 0 0;
-      color: #6b6673;
+      color: #66736d;
       font-size: 11px;
       line-height: 1.5;
       font-weight: 750;
@@ -580,9 +580,9 @@
     .mini-action {
       min-height: 42px;
       padding: 0 14px;
-      border: 1px solid #c3b9d4;
+      border: 1px solid #b9d4c6;
       border-radius: 8px;
-      background: #f2eef8;
+      background: #eef8f2;
       color: var(--green);
       font-size: 12px;
       font-weight: 950;
@@ -593,9 +593,9 @@
       width: 100%;
       margin-top: 12px;
       min-height: 38px;
-      border: 1px solid #c3b9d4;
+      border: 1px solid #b9d4c6;
       border-radius: 8px;
-      background: #f2eef8;
+      background: #eef8f2;
       color: var(--green);
       font-size: 12px;
       font-weight: 950;
@@ -606,7 +606,7 @@
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #fff;
-      color: #373042;
+      color: #30423b;
       font-size: 13px;
       font-weight: 900;
       line-height: 1.25;
@@ -654,7 +654,7 @@
       display: grid;
       align-content: center;
       background:
-        linear-gradient(90deg, rgba(58, 35, 94, .12), rgba(87, 53, 141, .08) 52%, rgba(176, 96, 24, .09)),
+        linear-gradient(90deg, rgba(22, 107, 79, .12), rgba(35, 95, 159, .08) 52%, rgba(176, 96, 24, .09)),
         #fff;
     }
 
@@ -666,7 +666,7 @@
 
     .brief p {
       margin: 0;
-      color: #564f62;
+      color: #4f625a;
       line-height: 1.65;
       font-weight: 650;
     }
@@ -701,7 +701,7 @@
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #fff;
-      color: #362f42;
+      color: #2f423a;
       display: inline-grid;
       place-items: center;
       font-size: 16px;
@@ -709,13 +709,13 @@
     }
 
     .icon-btn:hover {
-      border-color: #beb7c9;
-      background: #f9f8fb;
+      border-color: #b8c8c0;
+      background: #f8fbf9;
     }
 
     .lesson {
       padding: 20px;
-      background: #fbfbfc;
+      background: #fbfcfb;
     }
 
     .lesson-paper {
@@ -749,8 +749,8 @@
     .meta span {
       padding: 6px 8px;
       border-radius: 6px;
-      background: #f2f0f5;
-      color: #484351;
+      background: #f0f5f2;
+      color: #43514c;
       font-size: 12px;
       font-weight: 850;
     }
@@ -779,7 +779,7 @@
     }
 
     .mini-box {
-      border: 1px solid #e0dde6;
+      border: 1px solid #dde6e1;
       border-radius: 8px;
       padding: 13px;
       background: #fff;
@@ -794,7 +794,7 @@
 
     .mini-box p {
       margin: 0;
-      color: #443f4d;
+      color: #3f4d47;
       font-size: 13px;
       line-height: 1.55;
       font-weight: 650;
@@ -813,7 +813,7 @@
     .step {
       display: grid;
       grid-template-columns: 140px 1fr;
-      border: 1px solid #e0dde6;
+      border: 1px solid #dde6e1;
       border-radius: 8px;
       overflow: hidden;
       background: #fff;
@@ -821,8 +821,8 @@
 
     .step-name {
       padding: 14px;
-      background: #f3f1f7;
-      border-right: 1px solid #e0dde6;
+      background: #f1f7f4;
+      border-right: 1px solid #dde6e1;
       font-weight: 950;
       color: var(--green);
       line-height: 1.35;
@@ -836,13 +836,13 @@
 
     .step-detail p {
       margin: 0;
-      color: #4b4555;
+      color: #45554e;
       font-size: 13px;
       line-height: 1.55;
     }
 
     .step-detail b {
-      color: #211b2a;
+      color: #1b2a24;
     }
 
     .form-title {
@@ -855,7 +855,7 @@
       display: block;
       height: 4px;
       border-radius: 2px;
-      background: linear-gradient(90deg, #7c53be 0%, #e6def3 75%, #ffffff 100%);
+      background: linear-gradient(90deg, #d23f97 0%, #f4dded 75%, #ffffff 100%);
       margin-bottom: 12px;
     }
 
@@ -864,10 +864,10 @@
       padding-bottom: 12px;
       font-size: 23px;
       font-weight: 900;
-      color: #18151c;
+      color: #15171c;
       letter-spacing: -.3px;
-      border-bottom: 3px solid #563a84;
-      border-image: linear-gradient(90deg, #563a84 0%, #563a84 45%, #533386 100%) 1;
+      border-bottom: 3px solid #3a3c84;
+      border-image: linear-gradient(90deg, #3a3c84 0%, #3a3c84 45%, #2e8b57 100%) 1;
     }
 
     .form-table {
@@ -889,16 +889,16 @@
 
     .form-table th {
       width: 118px;
-      background: #e9e2f4;
-      color: #301e4e;
+      background: #dfe6f7;
+      color: #1a2452;
       text-align: center;
       font-weight: 900;
     }
 
     .form-table .subhead {
       width: 74px;
-      background: #f3f0f9;
-      color: #301e4e;
+      background: #eef1fb;
+      color: #1a2452;
       font-weight: 900;
       text-align: center;
     }
@@ -907,7 +907,7 @@
       width: 88px;
       text-align: center;
       font-weight: 900;
-      color: #492d77;
+      color: #2a2f7a;
       vertical-align: middle;
     }
 
@@ -920,9 +920,9 @@
     .career-tags span {
       padding: 5px 7px;
       border-radius: 999px;
-      background: #f4f2f6;
-      border: 1px solid #dbd7e1;
-      color: #484351;
+      background: #f2f6f4;
+      border: 1px solid #d7e1dc;
+      color: #43514c;
       font-size: 11px;
       font-weight: 850;
     }
@@ -936,7 +936,7 @@
     .career-link-line span {
       font-size: 13px;
       font-weight: 800;
-      color: #3c3547;
+      color: #354740;
     }
 
     @keyframes aiReveal {
@@ -968,8 +968,8 @@
       gap: 9px;
       margin: 26px 0 12px;
       padding-bottom: 7px;
-      border-bottom: 1.5px solid #563a84;
-      color: #18151c;
+      border-bottom: 1.5px solid #3a3c84;
+      color: #15171c;
       font-size: 17px;
       font-weight: 900;
     }
@@ -984,7 +984,7 @@
       height: 24px;
       display: grid;
       place-items: center;
-      background: #563a84;
+      background: #3a3c84;
       color: #fff;
       font-size: 14px;
       font-weight: 900;
@@ -995,7 +995,7 @@
       margin: 16px 0 8px;
       font-size: 14px;
       font-weight: 900;
-      color: #18151c;
+      color: #15171c;
     }
 
     .design-box,
@@ -1006,7 +1006,7 @@
       padding: 14px 16px;
       font-size: 13px;
       line-height: 1.7;
-      color: #26232b;
+      color: #232b27;
     }
 
     .design-box {
@@ -1033,7 +1033,7 @@
       height: 150px;
       text-align: center;
       vertical-align: middle;
-      color: #9f9aa6;
+      color: #9aa6a0;
       font-weight: 700;
       background: #fff;
     }
@@ -1041,7 +1041,7 @@
     .caption-cell {
       height: 30px;
       text-align: center;
-      color: #625d6b;
+      color: #5d6b64;
       font-size: 12px;
       background: #fff;
     }
@@ -1050,22 +1050,22 @@
     .media-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
     .media-thumb { max-width: 100%; max-height: 140px; object-fit: contain; border: 1px solid var(--line); border-radius: 4px; }
     .media-actions { display: flex; gap: 6px; }
-    .media-mini { font-size: 11px; padding: 2px 9px; border: 1px solid var(--line); border-radius: 999px; background: #fff; cursor: pointer; color: #625d6b; font-family: inherit; }
-    .media-mini:hover { background: #f2f0f4; }
+    .media-mini { font-size: 11px; padding: 2px 9px; border: 1px solid var(--line); border-radius: 999px; background: #fff; cursor: pointer; color: #5d6b64; font-family: inherit; }
+    .media-mini:hover { background: #f0f4f1; }
     .media-del { color: #c2453a; border-color: #f0c8c4; }
     .media-add {
       display: flex; align-items: center; justify-content: center;
       min-height: 120px; width: 100%; cursor: pointer;
-      color: #543a7d; font-weight: 700; font-size: 13px;
-      border: 1.5px dashed #a58fc9; border-radius: 6px; background: #f7f4fb;
+      color: #3a7d5d; font-weight: 700; font-size: 13px;
+      border: 1.5px dashed #8fc9ad; border-radius: 6px; background: #f4fbf7;
     }
-    .media-add:hover { background: #ede8f6; }
-    .caption-input { width: 100%; border: none; background: transparent; text-align: center; font-size: 12px; color: #625d6b; font-family: inherit; }
-    .caption-input:focus { outline: 1px solid #a58fc9; border-radius: 3px; }
+    .media-add:hover { background: #e8f6ef; }
+    .caption-input { width: 100%; border: none; background: transparent; text-align: center; font-size: 12px; color: #5d6b64; font-family: inherit; }
+    .caption-input:focus { outline: 1px solid #8fc9ad; border-radius: 3px; }
 
     /* Ⅲ.활동지 교사 업로드 PDF */
     .worksheet-toolbar { display: flex; align-items: center; gap: 8px; margin: 6px 0 8px; flex-wrap: wrap; }
-    .worksheet-pdf-name { font-size: 12px; color: #2d243b; font-weight: 700; }
+    .worksheet-pdf-name { font-size: 12px; color: #243b32; font-weight: 700; }
     .worksheet-pdf-frame { width: 100%; height: 520px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
 
     .process-table {
@@ -1086,16 +1086,16 @@
     }
 
     .process-table th {
-      background: #ddd2ee;
-      color: #301e4e;
+      background: #d1deef;
+      color: #1a2452;
       text-align: center;
       font-weight: 900;
     }
 
     .process-table .stage {
       width: 128px;
-      background: #e9e2f4;
-      color: #301e4e;
+      background: #dfe6f7;
+      color: #1a2452;
       text-align: center;
       font-weight: 900;
       vertical-align: middle;
@@ -1103,7 +1103,7 @@
 
     .process-table .note {
       width: 190px;
-      color: #554f5e;
+      color: #4f5e58;
       font-size: 12px;
     }
 
@@ -1117,10 +1117,10 @@
 
     .notice {
       padding: 12px 14px;
-      border: 1px dashed #ccc6d6;
+      border: 1px dashed #c6d6ce;
       border-radius: 8px;
-      background: #f9f8fb;
-      color: #595362;
+      background: #f8fbf9;
+      color: #53625c;
       font-size: 13px;
       line-height: 1.6;
       font-weight: 700;
@@ -1140,7 +1140,7 @@
       bottom: 22px;
       transform: translateX(-50%);
       padding: 10px 14px;
-      background: #1a1720;
+      background: #17201c;
       color: #fff;
       border-radius: 8px;
       font-size: 13px;
@@ -1218,7 +1218,7 @@
 
       .step-name {
         border-right: 0;
-        border-bottom: 1px solid #e0dde6;
+        border-bottom: 1px solid #dde6e1;
       }
 
       .toolbar-actions {
@@ -1357,37 +1357,38 @@
   <style>
     /* ===== 2026 리뉴얼: 봄/자연 민트-라임 테마 + 탭 구조 ===== */
     :root {
-      --ink: #262030;
-      --muted: #706b77;
-      --line: #e9e7ec;
-      --paper: #f6f4f9;
+      --ink: #3b322e;          /* 따뜻한 차콜 본문 */
+      --muted: #8c7f76;        /* 웜 그레이 보조 텍스트 */
+      --line: #f0e3d9;         /* 웜 라이트 라인 */
+      --paper: #FFF8F1;
       --panel: #ffffff;
-      --green: #4a2e78;       /* 진한 민트(완료/텍스트/버튼 그라데이션 시작) */
-      --green-2: #6c43af;      /* 기본 민트(주 컬러) */
-      --mint: #ede7f6;         /* 연한 민트 배경 */
-      --lime: #764bbb;
-      --violet: #a285d1;
-      --primary: #6c43af;
-      --primary-deep: #4a2e78;
-      --shadow: 0 2px 12px rgba(0,0,0,0.06);
-      --line-soft: rgba(0,0,0,0.06);
+      --green: #C2547B;        /* 딥 로즈: 그라데이션 시작/강조/체크 accent */
+      --green-2: #E98BAC;      /* 핑크: 보조 테두리·아이콘 */
+      --mint: #FCEBF1;         /* 연분홍 배경·배지·호버 */
+      --lime: #F0C14B;         /* 봄 노랑: 최종 단계·하이라이트 */
+      --violet: #8FBF9F;       /* 연두 보조 accent */
+      --primary: #E87BA1;      /* 핑크: 활성·주동작 */
+      --primary-deep: #C2547B; /* 딥 로즈 */
+      --done: #6FAF87;         /* 연두 그린: 완료 상태(활성 분홍과 구분) */
+      --shadow: 0 2px 12px rgba(150,90,110,0.10);
+      --line-soft: rgba(150,110,90,0.12);
     }
     body {
       font-family: "Noto Sans KR", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif;
-      background: linear-gradient(180deg, #FAFAF7 0, #f6f4f9 40%, #f2eff7 100%);
+      background: linear-gradient(180deg, #FFFCF8 0, #FFF8F1 42%, #FDF1EA 100%);
     }
     h1, h2, h3, label, .badge, .tab, .section-title h2, .section-title h3 {
       font-family: "Pretendard", "Noto Sans KR", sans-serif;
     }
-    /* 헤더: 연한 그린~민트 그라데이션 */
+    /* 헤더: 연분홍~봄노랑 그라데이션 */
     .topbar {
-      background: linear-gradient(135deg, #ede7f6 0, #e8e1f3 100%);
+      background: linear-gradient(135deg, #FCEBF1 0, #FDF3DA 100%);
       border-bottom: 1px solid var(--line-soft);
       backdrop-filter: none;
     }
     .topbar h1 { color: var(--primary-deep); }
-    .topbar p { color: #615b6b; }
-    .brand-mark { background: linear-gradient(135deg, #6c43af, #764bbb); }
+    .topbar p { color: #9a8a80; }
+    .brand-mark { background: linear-gradient(135deg, #E87BA1, #F0C14B); box-shadow: 0 6px 14px rgba(226,123,161,.22); }
     .status { color: var(--primary-deep); }
     .status .dot { background: var(--lime); }
 
@@ -1399,25 +1400,27 @@
 
     /* 버튼 */
     .primary {
-      background: linear-gradient(135deg, #6c43af, #5e3998);
-      box-shadow: 0 6px 14px rgba(108, 67, 175, .22);
+      background: linear-gradient(135deg, #E87BA1, #DB6E96);
+      box-shadow: 0 6px 14px rgba(226,123,161,.26);
       border-radius: 12px;
+      transition: background .18s ease, box-shadow .18s ease, transform .12s ease;
     }
-    .primary:hover { background: linear-gradient(135deg, #5e3998, #4a2e78); }
+    .primary:hover { background: linear-gradient(135deg, #DB6E96, #C2547B); box-shadow: 0 8px 18px rgba(194,84,123,.30); transform: translateY(-1px); }
     .primary.locked, .primary:disabled {
-      background: #d9d7dd !important; color: #8e8a94 !important;
-      box-shadow: none !important; cursor: not-allowed !important;
+      background: #ecdfd7 !important; color: #a89c93 !important;
+      box-shadow: none !important; cursor: not-allowed !important; transform: none !important;
     }
     .secondary, .mini-action, .recommend {
       background: #fff; color: var(--primary-deep);
       border: 1px solid var(--green-2); border-radius: 10px;
+      transition: background .15s ease, border-color .15s ease;
     }
-    .secondary:hover, .recommend:hover { background: var(--mint); }
+    .secondary:hover, .recommend:hover, .mini-action:hover { background: var(--mint); border-color: var(--primary); }
 
     /* 히어로 */
-    .hero { background: linear-gradient(135deg, #ffffff 0, #f6f3fb 100%); }
+    .hero { background: linear-gradient(135deg, #ffffff 0, #FFF6FA 100%); }
     .hero-kicker { background: var(--mint); color: var(--primary-deep); }
-    .pipe-step b { background: linear-gradient(135deg, #6c43af, #764bbb); color: #fff; }
+    .pipe-step b { background: linear-gradient(135deg, #E87BA1, #F0C14B); color: #fff; }
 
     /* ===== 탭 네비게이션 ===== */
     .tabnav {
@@ -1427,15 +1430,15 @@
     .tab {
       flex: 1 1 0; min-width: 130px;
       padding: 12px 10px; border: 1px solid var(--line-soft);
-      background: #f4f2f6; color: #706b77;
+      background: #FBF1EC; color: #8c7f76;
       border-radius: 12px; font-weight: 700; font-size: 13.5px;
       display: flex; align-items: center; justify-content: center; gap: 6px;
-      transition: background .15s ease, color .15s ease;
+      transition: background .15s ease, color .15s ease, transform .12s ease, box-shadow .15s ease;
     }
-    .tab:hover { background: #ece9f2; }
-    .tab.active { background: var(--primary); color: #fff; border-color: transparent; }
-    .tab.done { background: var(--primary-deep); color: #fff; border-color: transparent; }
-    .tab.done.active { box-shadow: 0 0 0 2px rgba(74, 46, 120, .25); }
+    .tab:hover { background: #F8E6EE; color: var(--primary-deep); transform: translateY(-1px); box-shadow: 0 3px 9px rgba(226,123,161,.14); }
+    .tab.active { background: linear-gradient(135deg, #E87BA1, #E06C97); color: #fff; border-color: transparent; }
+    .tab.done { background: linear-gradient(135deg, #6FAF87, #84BE99); color: #fff; border-color: transparent; }
+    .tab.done.active { box-shadow: 0 0 0 2px rgba(111,175,135,.3); }
     .tab .check { display: none; font-weight: 900; }
     .tab.done .check { display: inline; }
     .tab .req {
@@ -1443,15 +1446,15 @@
       background: #e2574c; padding: 1px 6px; border-radius: 999px;
     }
     .tab.active .req, .tab.done .req { background: rgba(255,255,255,.28); }
-    /* 최종 단계 탭 강조 */
+    /* 최종 단계 탭 강조(봄 노랑) */
     .tab.final { border: 1.5px solid var(--lime); }
-    .tab.final:not(.active):not(.done) { background: linear-gradient(135deg, #f1edf8, #e7e0f3); color: #4b2e7a; }
-    .final-badge { font-size: 10px; font-weight: 900; color: #fff; background: var(--lime); padding: 1px 7px; border-radius: 999px; }
+    .tab.final:not(.active):not(.done) { background: linear-gradient(135deg, #FFF7DD, #FFEFC0); color: #9a7b1e; }
+    .final-badge { font-size: 10px; font-weight: 900; color: #fff; background: #DB9A2A; padding: 1px 7px; border-radius: 999px; }
     .tab.final.active .final-badge, .tab.final.done .final-badge { background: rgba(255,255,255,.3); }
     .final-note {
       margin: 0 0 14px; padding: 11px 14px; border-radius: 10px;
-      background: linear-gradient(135deg, #e8e1f3, #ede7f6); color: #462f6b;
-      font-weight: 700; font-size: 13px; border: 1px solid rgba(118, 75, 187, .3);
+      background: linear-gradient(135deg, #FFF3D6, #FCEBF1); color: #97693a;
+      font-weight: 700; font-size: 13px; border: 1px solid rgba(240,193,75,.4);
     }
     .tabnav-divider { height: 1px; background: var(--line-soft); margin: 10px 0 16px; }
 
@@ -1466,14 +1469,15 @@
     .uncomplete-btn:hover { background: var(--mint); }
     .complete-btn {
       min-height: 42px; padding: 0 22px; border: 0; border-radius: 12px;
-      background: linear-gradient(135deg, #6c43af, #764bbb); color: #fff; font-weight: 800;
-      box-shadow: 0 6px 14px rgba(118, 75, 187, .20);
+      background: linear-gradient(135deg, #6FAF87, #8FBF9F); color: #fff; font-weight: 800;
+      box-shadow: 0 6px 14px rgba(111,175,135,.22);
+      transition: filter .15s ease, transform .12s ease;
     }
-    .complete-btn:hover { filter: brightness(.97); }
-    .complete-btn.is-done { background: var(--primary-deep); }
+    .complete-btn:hover { filter: brightness(.97); transform: translateY(-1px); }
+    .complete-btn.is-done { background: var(--done); }
 
     /* ===== 아코디언 ===== */
-    .accordion { margin-top: 14px; border: 1px solid var(--line-soft); border-radius: 12px; overflow: hidden; background: #fcfbfd; }
+    .accordion { margin-top: 14px; border: 1px solid var(--line-soft); border-radius: 12px; overflow: hidden; background: #FFFBF7; }
     .acc-head {
       width: 100%; text-align: left; border: 0; background: transparent;
       padding: 13px 15px; font-weight: 800; color: var(--primary-deep);
@@ -1483,11 +1487,11 @@
     .accordion.open .acc-ico { transform: rotate(180deg); }
     .acc-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
     .accordion.open .acc-body { max-height: 600px; }
-    .acc-body-inner { padding: 0 15px 15px; color: #5a5463; font-size: 13px; line-height: 1.6; }
+    .acc-body-inner { padding: 0 15px 15px; color: #54635c; font-size: 13px; line-height: 1.6; }
     .acc-body-inner a { color: var(--green-2); font-weight: 700; }
 
     /* 자료실 드래그앤드롭 강조 */
-    .template-box { border: 2px dashed var(--green-2); background: #f6f3fb; text-align: left; }
+    .template-box { border: 2px dashed var(--green-2); background: #FFF6FA; text-align: left; }
     .template-box::before { content: "📂  파일을 끌어다 놓거나 선택하세요"; display: block; font-weight: 700; color: var(--primary-deep); margin-bottom: 10px; }
 
     /* 생성 버튼 경고 */
@@ -1519,9 +1523,9 @@
 
     /* 이전 생성 지도안 보관함 */
     .topbar-actions { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
-    .topbar-btn { padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--primary-deep); font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; }
-    .topbar-btn:hover { background: #f2f0f4; }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(24, 20, 30, .5); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+    .topbar-btn { padding: 8px 12px; border: 1px solid var(--green-2); border-radius: 8px; background: #fff; color: var(--primary-deep); font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; transition: background .15s ease, transform .12s ease; }
+    .topbar-btn:hover { background: var(--mint); transform: translateY(-1px); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(20, 30, 25, .5); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
     .modal-overlay[hidden] { display: none; }
     .modal-card { background: #fff; border-radius: 12px; width: min(560px, 100%); max-height: 80vh; overflow: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, .25); }
     .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--line); }
@@ -1531,10 +1535,31 @@
     .archive-empty { color: var(--muted); font-size: 13px; line-height: 1.6; }
     .archive-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
     .archive-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-    .archive-meta b { font-size: 14px; color: #2d243b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .archive-meta b { font-size: 14px; color: #243b32; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .archive-meta span { font-size: 11px; color: var(--muted); }
     .archive-actions { display: flex; gap: 6px; flex: 0 0 auto; }
     .archive-del { color: #c2453a; border-color: #f0c8c4; }
+    .archive-item { transition: border-color .15s ease, background .15s ease; }
+    .archive-item:hover { border-color: var(--green-2); background: #FFF8FB; }
+    .archive-meta b { color: #4a3f3a; }
+
+    /* ===== 봄 테마: 입력 영역 컴포넌트의 잔여 그린 정리(원본 블록은 미수정, 여기서 덮어씀) ===== */
+    .model-option, .source-card { border-color: var(--line); transition: border-color .15s ease, box-shadow .15s ease, transform .12s ease; }
+    .model-option:hover, .source-card:hover { border-color: var(--green-2); box-shadow: 0 3px 10px rgba(226,123,161,.12); transform: translateY(-1px); }
+    .source-card label { color: #4a3f3a; }
+    .source-card p, .model-option span { color: var(--muted); }
+    .career-tags span, .mission-tags span { background: var(--mint); color: var(--primary-deep); border-color: rgba(226,123,161,.22); }
+    .step-name { background: var(--mint); color: var(--primary-deep); }
+    .prompt-editor, .prompt-box textarea, .prompt-toolbar input, .prompt-toolbar select, .reference-box textarea { border-color: var(--line) !important; }
+    .hero-kicker { border: 1px solid rgba(226,123,161,.25); }
+    .icon-btn { color: var(--primary-deep); transition: background .15s ease; }
+    .icon-btn:hover { background: var(--mint); }
+    .acc-body-inner a { color: var(--primary-deep); }
+    /* NotebookLM 열기 버튼: 봄 베리 톤(분홍 주버튼과 위계 구분) + 호버 */
+    .nb-open { background: linear-gradient(135deg, #C95C86, #A8456D); box-shadow: 0 6px 14px rgba(168,69,109,.24); }
+    .nb-open:hover { background: linear-gradient(135deg, #A8456D, #8f375a); box-shadow: 0 8px 18px rgba(143,55,90,.28); }
+    /* 지도안 문서는 원래 색 유지: 종이 테두리만 변수에서 분리해 원래 회색으로 고정 */
+    .lesson-paper { border-color: #e7ece8; }
   </style>
 </head>
 <body>
@@ -1820,7 +1845,7 @@
               <span class="badge">과목별</span>
             </div>
             <p class="hint">선택한 <b>교과</b>의 NotebookLM을 새 탭으로 열고 요청문을 자동 복사합니다. NotebookLM 답변(JSON)을 아래 칸에 붙여넣고 ‘결과 적용’을 누르면 지도안·학습지가 채워집니다.</p>
-            <button class="primary" id="notebookOpenBtn" type="button" style="background:linear-gradient(135deg,#563a84,#7f5bb8)">📓 NotebookLM 열고 요청문 복사</button>
+            <button class="primary nb-open" id="notebookOpenBtn" type="button">📓 NotebookLM 열고 요청문 복사</button>
             <div class="field" style="margin-top:10px">
               <label for="notebookResult">NotebookLM 답변 붙여넣기</label>
               <textarea id="notebookResult" placeholder="NotebookLM이 준 JSON 답변을 통째로 붙여넣으세요"></textarea>
