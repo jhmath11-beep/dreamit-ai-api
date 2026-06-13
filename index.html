@@ -1636,6 +1636,14 @@
       border-radius: 6px;
     }
 
+    /* 기본정보 3분할 카드 간 간격 */
+    .tabpanel > .section + .section { margin-top: 16px; }
+
+    /* 첫 화면: '지도안 만들기 시작' 전까지 단계 탭/패널 숨김(깔끔한 랜딩) */
+    .workspace.builder-collapsed #tabnav,
+    .workspace.builder-collapsed .tabnav-divider,
+    .workspace.builder-collapsed .tabwrap { display: none; }
+
     /* ===== 모바일 반응형 ===== */
     @media (max-width: 860px) {
       .hero { display: block; }
@@ -1667,7 +1675,7 @@
       </div>
     </header>
 
-    <main class="workspace">
+    <main class="workspace builder-collapsed">
       <section class="panel hero">
         <div>
           <span class="hero-kicker">꿈it(잇)다 기반 진로 연계 교과 수업</span>
@@ -1680,7 +1688,7 @@
             <span>교수·학습 과정안 작성</span>
           </div>
           <div class="hero-cta">
-            <a class="hero-btn-primary" href="#tabnav">🚀 지도안 만들기 시작</a>
+            <a class="hero-btn-primary" href="#tabnav" onclick="document.querySelector('.workspace').classList.remove('builder-collapsed')">🚀 지도안 만들기 시작</a>
             <button class="hero-btn-ghost" type="button" onclick="openArchiveModal(false)">📂 이전 지도안 보기</button>
           </div>
         </div>
@@ -1707,7 +1715,7 @@
         <section class="tabpanel show" data-panel="basic">
         <section class="section action-section">
           <div class="section-title">
-            <h2><span class="ic">📋</span>수업 기본 정보</h2>
+            <h2><span class="ic">📋</span>수업 대상</h2>
             <span class="badge">STEP 1</span>
           </div>
           <div class="grid-3">
@@ -1772,6 +1780,12 @@
               <input id="teacher" value="김준홍" />
             </div>
           </div>
+        </section>
+
+        <section class="section">
+          <div class="section-title">
+            <h3><span class="ic">📝</span>수업 정보</h3>
+          </div>
           <div class="grid-2">
             <div class="field">
               <label for="method">수업형태·방법</label>
@@ -1791,6 +1805,12 @@
               <label for="topic">수업 주제</label>
               <input id="topic" value="생활 속 불편함을 해결하는 앱 아이디어 설계" />
             </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-title">
+            <h3><span class="ic">🎯</span>성취기준</h3>
           </div>
           <div class="field">
             <label for="standard">성취기준</label>
