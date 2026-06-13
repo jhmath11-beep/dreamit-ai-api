@@ -1377,9 +1377,9 @@
     body {
       font-family: "Noto Sans KR", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif;
       background:
-        radial-gradient(circle at 12% 0%, rgba(109,93,246,0.16), transparent 34%),
-        radial-gradient(circle at 88% 4%, rgba(94,234,212,0.14), transparent 30%),
-        linear-gradient(180deg, #F5F7FF 0%, #F8FAFC 48%, #FFFFFF 100%);
+        radial-gradient(circle at top left, rgba(109,93,246,0.18), transparent 32%),
+        radial-gradient(circle at top right, rgba(45,212,191,0.14), transparent 28%),
+        linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 45%, #ECFEFF 100%);
       background-attachment: fixed;
       color: var(--ink);
     }
@@ -1395,7 +1395,7 @@
     .topbar h1 { color: var(--primary-deep); }
     .topbar p { color: var(--muted); }
     .brand-mark { background: linear-gradient(135deg, #4F46E5, #06B6D4); box-shadow: 0 8px 16px rgba(79,70,229,.26); }
-    .status { color: var(--primary-deep); background: rgba(255,255,255,.7); border: 1px solid var(--line-soft); }
+    .status { color: var(--primary-deep); background: var(--mint); border: 1px solid rgba(109,93,246,.2); font-weight: 800; }
     .status .dot { background: var(--done); }
 
     /* 카드/패널: 반투명 유리 + 부드러운 그림자 */
@@ -1471,14 +1471,28 @@
       margin: 4px 0 2px;
     }
     .tab {
-      flex: 1 1 0; min-width: 130px;
-      padding: 12px 10px; border: 1px solid var(--line-soft);
-      background: #F1F5F9; color: var(--muted);
-      border-radius: 12px; font-weight: 700; font-size: 13.5px;
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      transition: background .15s ease, color .15s ease, transform .12s ease, box-shadow .15s ease;
+      flex: 1 1 0; min-width: 152px;
+      padding: 11px 13px; border: 1px solid var(--line-soft);
+      background: #fff; color: var(--muted);
+      border-radius: 14px; font-weight: 700; font-size: 13px;
+      display: flex; align-items: center; justify-content: flex-start; gap: 8px; text-align: left;
+      transition: background .15s ease, color .15s ease, transform .12s ease, box-shadow .15s ease, border-color .15s ease;
     }
-    .tab:hover { background: #E0E7FF; color: var(--primary-deep); transform: translateY(-1px); box-shadow: 0 3px 9px rgba(99,102,241,.15); }
+    .tab:hover { background: #F5F7FF; color: var(--primary-deep); border-color: var(--green-2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,.14); }
+    /* 단계 번호 칩 */
+    .tab .tab-no {
+      flex: 0 0 auto; width: 27px; height: 27px; border-radius: 8px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 900; letter-spacing: -.3px;
+      background: var(--mint); color: var(--primary); border: 1px solid rgba(109,93,246,.18);
+    }
+    .tab .tab-name { flex: 1 1 auto; font-weight: 800; font-size: 13px; color: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tab.active .tab-no { background: rgba(255,255,255,.22); color: #fff; border-color: transparent; }
+    .tab.done .tab-no { background: #fff; color: #059669; border-color: #6EE7B7; }
+    .tab.done.active .tab-no { background: rgba(255,255,255,.22); color: #fff; border-color: transparent; }
+    /* 선택(옵션) 배지 */
+    .tab .opt { font-size: 10px; font-weight: 900; color: #475569; background: #E2E8F0; padding: 1px 6px; border-radius: 999px; flex: 0 0 auto; }
+    .tab.active .opt, .tab.done.active .opt { background: rgba(255,255,255,.28); color: #fff; }
     .tab.active { background: linear-gradient(135deg, #4F46E5, #2563EB); color: #fff; border-color: transparent; box-shadow: 0 6px 16px rgba(37,99,235,.22); }
     .tab.done { background: #ECFDF5; color: #047857; border-color: #6EE7B7; }
     .tab.done .check { color: #059669; }
@@ -1701,13 +1715,13 @@
         </div>
       </section>
 
-      <nav class="tabnav" id="tabnav" aria-label="단계 탭">
-        <button class="tab active" type="button" data-tab="basic"><span>수업기본정보</span><span class="req">필수</span><span class="check">✓</span></button>
-        <button class="tab" type="button" data-tab="sources"><span>자료실연결</span><span class="check">✓</span></button>
-        <button class="tab" type="button" data-tab="principles"><span>AI 기본 작성 원칙</span><span class="req">필수</span><span class="check">✓</span></button>
-        <button class="tab" type="button" data-tab="model"><span>꿈잇다 수업유형</span><span class="req">필수</span><span class="check">✓</span></button>
-        <button class="tab" type="button" data-tab="career"><span>진로연계요소</span><span class="req">필수</span><span class="check">✓</span></button>
-        <button class="tab final" type="button" data-tab="edutech"><span>🏁 에듀테크·지도안 생성</span><span class="final-badge">최종</span><span class="check">✓</span></button>
+      <nav class="tabnav" id="tabnav" aria-label="단계 진행">
+        <button class="tab active" type="button" data-tab="basic"><span class="tab-no">01</span><span class="tab-name">기본정보</span><span class="req">필수</span><span class="check">✓</span></button>
+        <button class="tab" type="button" data-tab="sources"><span class="tab-no">02</span><span class="tab-name">자료연결</span><span class="opt">선택</span><span class="check">✓</span></button>
+        <button class="tab" type="button" data-tab="principles"><span class="tab-no">03</span><span class="tab-name">작성원칙</span><span class="req">필수</span><span class="check">✓</span></button>
+        <button class="tab" type="button" data-tab="model"><span class="tab-no">04</span><span class="tab-name">수업유형</span><span class="req">필수</span><span class="check">✓</span></button>
+        <button class="tab" type="button" data-tab="career"><span class="tab-no">05</span><span class="tab-name">진로요소</span><span class="req">필수</span><span class="check">✓</span></button>
+        <button class="tab final" type="button" data-tab="edutech"><span class="tab-no">06</span><span class="tab-name">지도안 생성</span><span class="final-badge">최종</span><span class="check">✓</span></button>
       </nav>
       <div class="tabnav-divider"></div>
 
@@ -1754,6 +1768,18 @@
           </div>
           <div class="grid-2">
             <div class="field">
+              <label for="teacher">담당교사</label>
+              <input id="teacher" value="김준홍" />
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-title">
+            <h3><span class="ic">📅</span>수업 상황</h3>
+          </div>
+          <div class="grid-2">
+            <div class="field">
               <label for="lessonDate">일시</label>
               <div class="structured-date">
                 <input id="lessonDate" type="date" value="2026-05-11" />
@@ -1776,41 +1802,29 @@
               </div>
             </div>
             <div class="field">
-              <label for="teacher">담당교사</label>
-              <input id="teacher" value="김준홍" />
-            </div>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-title">
-            <h3><span class="ic">📝</span>수업 정보</h3>
-          </div>
-          <div class="grid-2">
-            <div class="field">
               <label for="method">수업형태·방법</label>
               <input id="method" value="프로젝트 기반 협력 수업" />
             </div>
+          </div>
+          <div class="grid-2">
             <div class="field">
               <label for="unit">단원명</label>
               <input id="unit" value="문제 해결과 프로그래밍" />
             </div>
-          </div>
-          <div class="grid-2">
             <div class="field">
               <label for="period">차시</label>
               <input id="period" value="2차시" />
-            </div>
-            <div class="field">
-              <label for="topic">수업 주제</label>
-              <input id="topic" value="생활 속 불편함을 해결하는 앱 아이디어 설계" />
             </div>
           </div>
         </section>
 
         <section class="section">
           <div class="section-title">
-            <h3><span class="ic">🎯</span>성취기준</h3>
+            <h3><span class="ic">🎯</span>성취기준과 수업 주제</h3>
+          </div>
+          <div class="field">
+            <label for="topic">수업 주제</label>
+            <input id="topic" value="생활 속 불편함을 해결하는 앱 아이디어 설계" />
           </div>
           <div class="field">
             <label for="standard">성취기준</label>
@@ -1825,7 +1839,7 @@
               <br><a href="https://jinro.goedu.kr/" target="_blank" rel="noopener">꿈잇다 시스템 바로가기</a>
             </div></div>
           </div>
-          <div class="tab-footer"><button class="uncomplete-btn" type="button">완료 취소</button><button class="complete-btn" type="button" data-complete="basic">완료</button></div>
+          <div class="tab-footer"><button class="uncomplete-btn" type="button">다시 수정</button><button class="complete-btn" type="button" data-complete="basic">완료</button></div>
         </section>
         </section>
 
@@ -1844,7 +1858,7 @@
             <p id="templateStatus">학교별 교수·학습 과정안 양식을 올리면 생성 조건에 반영합니다. HWPX는 내용 추출을 시도하고, HWP는 서버 변환 연동이 필요합니다.</p>
           </div>
           <p class="hint">AI 호출용 OpenAI 키는 서버(Vercel 환경변수)에 안전하게 보관되어 사용자가 입력할 필요가 없습니다. ‘<b>AI 수업 추천으로 지도안 만들기</b>’를 누르면 서버를 거쳐 각 칸이 채워집니다. (서버 미연동 시 시뮬레이션으로 동작)</p>
-          <div class="tab-footer"><button class="uncomplete-btn" type="button">완료 취소</button><button class="complete-btn" type="button" data-complete="sources">완료</button></div>
+          <div class="tab-footer"><button class="uncomplete-btn" type="button">다시 수정</button><button class="complete-btn" type="button" data-complete="sources">완료</button></div>
         </section>
         </section>
 
@@ -1872,7 +1886,7 @@
             </div>
             <p class="prompt-note">이 내용은 매번 선택하는 질문이 아니라 AI가 항상 지켜야 하는 기본 작성 원칙입니다. AI 연결 시 프로그램에 입력된 수업 정보와 관련 자료를 바탕으로 수업 활동을 먼저 추천하고, 그 결과를 지도안 양식의 각 칸에 채우는 구조로 확장합니다.</p>
           </div>
-          <div class="tab-footer"><button class="uncomplete-btn" type="button">완료 취소</button><button class="complete-btn" type="button" data-complete="principles">원칙 저장 및 완료</button></div>
+          <div class="tab-footer"><button class="uncomplete-btn" type="button">다시 수정</button><button class="complete-btn" type="button" data-complete="principles">원칙 저장 및 완료</button></div>
         </section>
         </section>
 
@@ -1894,7 +1908,7 @@
               어떤 수업 모형(탐색형·개발형·융합형·발표형·진로연계형)을 어느 단계에서 활용하는지, 꿈잇다 시스템의 어떤 메뉴를 쓰는지 구체적으로 적습니다.
             </div></div>
           </div>
-          <div class="tab-footer"><button class="uncomplete-btn" type="button">완료 취소</button><button class="complete-btn" type="button" data-complete="model">완료</button></div>
+          <div class="tab-footer"><button class="uncomplete-btn" type="button">다시 수정</button><button class="complete-btn" type="button" data-complete="model">완료</button></div>
         </section>
         </section>
 
@@ -1917,7 +1931,7 @@
               직업명 나열이 아니라 학생의 역할 경험·역량 발견·삶과의 연결로 표현하세요.
             </div></div>
           </div>
-          <div class="tab-footer"><button class="uncomplete-btn" type="button">완료 취소</button><button class="complete-btn" type="button" data-complete="career">완료</button></div>
+          <div class="tab-footer"><button class="uncomplete-btn" type="button">다시 수정</button><button class="complete-btn" type="button" data-complete="career">완료</button></div>
         </section>
         </section>
 
@@ -8256,7 +8270,8 @@ ${data.promptText}
           const id = cb.getAttribute("data-complete");
           const done = completedTabs[id] === true;
           cb.classList.toggle("is-done", done);
-          cb.textContent = done ? "완료됨 ✓" : (id === "principles" ? "원칙 저장 및 완료" : "완료");
+          const STEP_NEXT = { basic: "기본정보 저장하고 다음", sources: "자료 연결 저장", principles: "작성 원칙 저장하고 다음", model: "수업유형 저장하고 다음", career: "진로요소 저장하고 다음" };
+          cb.textContent = done ? "저장됨 ✓" : (STEP_NEXT[id] || "저장하고 다음 단계로");
           if (ub) ub.style.display = done ? "inline-block" : "none";
         });
       }
@@ -8284,7 +8299,15 @@ ${data.promptText}
         localStorage.setItem(COMPLETE_KEY, JSON.stringify(completedTabs));
         updateTabStyles();
         checkGenerateButton();
-        if (typeof showToast === "function") showToast("‘완료’로 표시했습니다");
+        // 저장 후 다음 단계로 자동 이동(흐름 개선) — 완료 기록·게이팅 로직은 그대로.
+        const ADV = ["basic", "sources", "principles", "model", "career", "edutech"];
+        const ni = ADV.indexOf(id) + 1;
+        if (ni > 0 && ni < ADV.length) {
+          switchTab(ADV[ni]);
+          const nav = document.getElementById("tabnav");
+          if (nav) nav.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        if (typeof showToast === "function") showToast("저장했습니다 · 다음 단계로 이동");
       }
       function revealPreview() {
         const r = document.getElementById("previewReveal");
