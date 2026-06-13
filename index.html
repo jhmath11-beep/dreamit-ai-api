@@ -1670,23 +1670,24 @@
     /* ===== 비비드 그라데이션 히어로 (하단 화이트 입력부와 명확히 구분) ===== */
     .hero {
       background:
-        radial-gradient(circle at 88% 12%, rgba(255,255,255,.22), transparent 46%),
-        linear-gradient(135deg, #7C3AED 0%, #5B6EF5 48%, #22D3EE 100%) !important;
+        radial-gradient(circle at 88% 12%, rgba(255,255,255,.14), transparent 48%),
+        linear-gradient(135deg, #6D28D9 0%, #4F46E5 50%, #0E7490 100%) !important;
       border-color: transparent !important;
       box-shadow: 0 24px 50px rgba(79,70,229,.30);
     }
-    .hero::after { background: radial-gradient(circle, rgba(255,255,255,.18), transparent 70%); }
-    .hero h2 { color: #fff; }
-    .hero > div > p { color: rgba(255,255,255,.92); }
-    .hero-kicker { background: rgba(255,255,255,.20) !important; color: #fff !important; border: 1px solid rgba(255,255,255,.45) !important; }
-    .mission-tags span { background: rgba(255,255,255,.16) !important; color: #fff !important; border: 1px solid rgba(255,255,255,.32) !important; }
+    .hero::after { background: radial-gradient(circle, rgba(255,255,255,.12), transparent 70%); }
+    .hero h2 { color: #fff; text-shadow: 0 1px 14px rgba(0,0,0,.20); }
+    .hero > div > p { color: #fff; text-shadow: 0 1px 10px rgba(0,0,0,.18); }
+    /* 키커·미션태그: 흰 알약 + 인디고 글자(또렷하게) */
+    .hero-kicker { background: rgba(255,255,255,.95) !important; color: #4338CA !important; border: 1px solid rgba(255,255,255,.6) !important; }
+    .mission-tags span { background: rgba(255,255,255,.90) !important; color: #4338CA !important; border: 1px solid rgba(255,255,255,.5) !important; font-weight: 800; }
     /* 우측 파이프라인: 흰 카드 + 비비드 번호 */
-    .pipe-step { background: rgba(255,255,255,.94); border: 1px solid rgba(255,255,255,.6); box-shadow: 0 10px 22px rgba(40,30,90,.16); }
+    .pipe-step { background: #ffffff; border: 1px solid rgba(255,255,255,.7); box-shadow: 0 10px 22px rgba(40,30,90,.18); }
     .pipe-step b { background: linear-gradient(135deg, #7C3AED, #22D3EE) !important; color: #fff !important; }
     .pipe-step span { color: #2E2A55; }
-    /* 시작 버튼 = 파이프라인 번호와 동일(비비드 그라데이션) */
-    .hero-btn-primary { background: linear-gradient(135deg, #7C3AED, #22D3EE) !important; color: #fff !important; box-shadow: 0 12px 26px rgba(40,30,90,.32) !important; border: 1px solid rgba(255,255,255,.35); }
-    .hero-btn-ghost { background: rgba(255,255,255,.18) !important; color: #fff !important; border: 1px solid rgba(255,255,255,.5) !important; }
+    /* 시작 버튼 = 파이프라인 번호와 동일(비비드 그라데이션) + 또렷한 외곽 */
+    .hero-btn-primary { background: linear-gradient(135deg, #7C3AED, #22D3EE) !important; color: #fff !important; box-shadow: 0 12px 26px rgba(20,12,60,.40) !important; border: 1.5px solid rgba(255,255,255,.7); text-shadow: 0 1px 6px rgba(0,0,0,.25); }
+    .hero-btn-ghost { background: rgba(255,255,255,.16) !important; color: #fff !important; border: 1.5px solid rgba(255,255,255,.7) !important; text-shadow: 0 1px 6px rgba(0,0,0,.2); }
     .hero-btn-ghost:hover { background: rgba(255,255,255,.3) !important; }
   </style>
 </head>
