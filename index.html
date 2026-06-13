@@ -6236,8 +6236,9 @@
     }
     function currentLessonTitle() {
       const subj = $("subject").value.trim() || "교과";
+      const unit = $("unit").value.trim();
       const topic = $("topic").value.trim() || "주제 미정";
-      return `[${subj}] ${topic}`;
+      return `[${subj}] ${unit ? `${unit} · ` : ""}${topic}`;
     }
     function saveLessonToArchive() {
       const list = getArchive();
