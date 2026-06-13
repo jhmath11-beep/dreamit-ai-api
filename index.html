@@ -1649,12 +1649,6 @@
             </div>
             <p id="templateStatus">학교별 교수·학습 과정안 양식을 올리면 생성 조건에 반영합니다. HWPX는 내용 추출을 시도하고, HWP는 서버 변환 연동이 필요합니다.</p>
           </div>
-          <div class="api-row">
-            <div class="field">
-              <label for="driveLink">Drive 문서/폴더 링크</label>
-              <input id="driveLink" value="https://drive.google.com/..." />
-            </div>
-          </div>
           <p class="hint">AI 호출용 OpenAI 키는 서버(Vercel 환경변수)에 안전하게 보관되어 사용자가 입력할 필요가 없습니다. ‘<b>AI 수업 추천으로 지도안 만들기</b>’를 누르면 서버를 거쳐 각 칸이 채워집니다. (서버 미연동 시 시뮬레이션으로 동작)</p>
           <div class="tab-footer"><button class="uncomplete-btn" type="button">완료 취소</button><button class="complete-btn" type="button" data-complete="sources">완료</button></div>
         </section>
@@ -6019,7 +6013,6 @@
         topic: $("topic").value,
         standard: $("standard").value,
         assessment: $("assessment").value,
-        driveLink: $("driveLink").value,
         dreamitMethod: $("dreamitMethod").value,
         achievementId: state.achievementId,
         templateName: state.templateName,
@@ -6051,7 +6044,7 @@
 
       try {
         const draft = JSON.parse(saved);
-        ["subject", "className", "lessonDate", "lessonWeekday", "lessonPeriodSelect", "teacher", "grade", "method", "unit", "period", "topic", "standard", "assessment", "driveLink", "dreamitMethod"].forEach((id) => {
+        ["subject", "className", "lessonDate", "lessonWeekday", "lessonPeriodSelect", "teacher", "grade", "method", "unit", "period", "topic", "standard", "assessment", "dreamitMethod"].forEach((id) => {
           if (draft[id] !== undefined) $(id).value = draft[id];
         });
         if (draft.className && draft.className.includes("반")) {
@@ -6750,7 +6743,6 @@ ${modelLines}
 - 진로교육 요소: ${data.careers.join(", ")}
 - 진로와 직업 연계 영역(연구학교 양식): ${data.careerLinks.filter((item) => item.on).map((item) => item.name).join(", ") || "미선택"}
 - 꿈it(잇)다 시스템 연계 방법: ${data.dreamitMethod}
-- Drive 자료 링크: ${$("driveLink").value.trim() || "미입력"}
 - 지도안 양식 파일: ${data.templateName || "기본 양식"}
 ${data.templateText ? `- 업로드 양식에서 추출한 항목/문장: ${data.templateText}` : "- 업로드 양식 내용: 기본 연구학교 양식 사용"}
 
@@ -7608,7 +7600,7 @@ ${data.promptText}
       }
     }
 
-    ["className", "lessonDate", "lessonWeekday", "lessonPeriodSelect", "teacher", "grade", "method", "unit", "period", "topic", "assessment", "driveLink", "dreamitMethod"].forEach((id) => {
+    ["className", "lessonDate", "lessonWeekday", "lessonPeriodSelect", "teacher", "grade", "method", "unit", "period", "topic", "assessment", "dreamitMethod"].forEach((id) => {
       $(id).addEventListener("input", () => {
         renderLesson();
         scheduleSave();
