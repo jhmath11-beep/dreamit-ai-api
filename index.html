@@ -1497,6 +1497,25 @@
       .section { padding: 15px; }
       .workspace { padding: 16px 14px 28px; }
     }
+
+    /* 이전 생성 지도안 보관함 */
+    .topbar-actions { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+    .topbar-btn { padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--primary-deep); font-size: 12px; font-weight: 800; cursor: pointer; white-space: nowrap; }
+    .topbar-btn:hover { background: #f0f4f1; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(20, 30, 25, .5); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+    .modal-overlay[hidden] { display: none; }
+    .modal-card { background: #fff; border-radius: 12px; width: min(560px, 100%); max-height: 80vh; overflow: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, .25); }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+    .modal-head h3 { margin: 0; font-size: 17px; color: var(--primary-deep); }
+    .modal-warning { margin: 12px 18px 0; padding: 10px 12px; background: #fdecea; color: #c2453a; border-radius: 8px; font-size: 13px; font-weight: 700; }
+    .archive-list { padding: 14px 18px 18px; display: flex; flex-direction: column; gap: 10px; }
+    .archive-empty { color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .archive-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+    .archive-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .archive-meta b { font-size: 14px; color: #243b32; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .archive-meta span { font-size: 11px; color: var(--muted); }
+    .archive-actions { display: flex; gap: 6px; flex: 0 0 auto; }
+    .archive-del { color: #c2453a; border-color: #f0c8c4; }
   </style>
 </head>
 <body>
@@ -1510,7 +1529,10 @@
             <p>교과 수업 속 진로 탐색과 학생 활동을 지도안으로 연결</p>
           </div>
         </div>
-        <div class="status"><span class="dot"></span>시연용 프로토타입</div>
+        <div class="topbar-actions">
+          <button class="topbar-btn" id="openArchiveBtn" type="button">📂 이전 생성 지도안 보기</button>
+          <div class="status"><span class="dot"></span>시연용 프로토타입</div>
+        </div>
       </div>
     </header>
 
@@ -1823,6 +1845,7 @@
             <div class="toolbar-actions">
               <button class="icon-btn" id="copyBtn" type="button" title="내용 복사">⧉</button>
               <button class="icon-btn" id="downloadBtn" type="button" title="Word 문서 내려받기">↓</button>
+              <button class="icon-btn" id="archiveSaveBtn" type="button" title="이 지도안을 보관함에 저장" style="width:auto;padding:0 12px;font-size:12px;font-weight:700">보관함에 저장</button>
               <button class="icon-btn" id="hidePreviewBtn" type="button" title="지도안 숨기기" style="width:auto;padding:0 12px;font-size:12px;font-weight:700">지도안 숨기기 ✕</button>
             </div>
           </div>
@@ -1833,6 +1856,17 @@
   </div>
 
   <div class="toast" id="toast">완료되었습니다</div>
+
+  <div class="modal-overlay" id="archiveModal" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>📂 이전 생성 지도안 보관함</h3>
+        <button class="icon-btn" id="archiveCloseBtn" type="button" title="닫기">✕</button>
+      </div>
+      <div class="modal-warning" id="archiveWarning" hidden>보관함이 가득 찼습니다(최대 5개). 아래에서 이전 지도안을 삭제한 뒤 다시 저장하세요.</div>
+      <div class="archive-list" id="archiveList"></div>
+    </div>
+  </div>
 
   <script>
     const models = [
@@ -6120,58 +6154,169 @@
       saveTimer = window.setTimeout(() => saveDraft(false), 350);
     }
 
+    // 저장된 입력 객체(draft)를 입력칸·state에 반영한다. localStorage 읽기와 분리해
+    // 임시저장 복원과 보관함 불러오기가 같은 로직을 쓰도록 한다.
+    function applyDraftData(draft) {
+      ["subject", "className", "lessonDate", "lessonWeekday", "lessonPeriodSelect", "teacher", "grade", "method", "unit", "period", "topic", "standard", "assessment", "dreamitMethod"].forEach((id) => {
+        if (draft[id] !== undefined) $(id).value = draft[id];
+      });
+      if (draft.className && draft.className.includes("반")) {
+        const classMatch = draft.className.match(/\d+반/);
+        const gradeMatch = draft.className.match(/\d학년/);
+        if (classMatch) $("className").value = classMatch[0];
+        if (gradeMatch) $("grade").value = gradeMatch[0];
+      }
+      if (draft.dateInfo && !draft.lessonDate) {
+        const dateMatch = draft.dateInfo.match(/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})/);
+        const weekdayMatch = draft.dateInfo.match(/\(([월화수목금])\)/);
+        const periodMatch = draft.dateInfo.match(/(\d교시)/);
+        if (dateMatch) {
+          $("lessonDate").value = `${dateMatch[1]}-${dateMatch[2].padStart(2, "0")}-${dateMatch[3].padStart(2, "0")}`;
+        }
+        if (weekdayMatch) $("lessonWeekday").value = weekdayMatch[1];
+        if (periodMatch) $("lessonPeriodSelect").value = periodMatch[1];
+      }
+      if (draft.model) state.model = draft.model;
+      if (draft.achievementId) state.achievementId = draft.achievementId;
+      if (draft.templateName) state.templateName = draft.templateName;
+      if (draft.templateText) state.templateText = draft.templateText;
+      if (draft.promptId) state.promptId = draft.promptId;
+      if (draft.promptText) state.promptText = draft.promptText;
+      if (state.promptId === "metan-core") {
+        state.promptText = defaultPromptPresets[0].text;
+      }
+      if (Array.isArray(draft.tools)) state.tools = new Set(draft.tools);
+      if (Array.isArray(draft.sources)) state.sources = new Set(draft.sources);
+      if (Array.isArray(draft.careers)) state.careers = new Set(draft.careers);
+      if (Array.isArray(draft.careerLinks)) state.careerLinks = new Set(draft.careerLinks);
+      // 보관함 복원 시 깨끗이 덮어쓰도록 항상 3칸을 초기화 후 채운다.
+      state.activityMedia = [
+        { img: "", caption: "", w: 0, h: 0 },
+        { img: "", caption: "", w: 0, h: 0 },
+        { img: "", caption: "", w: 0, h: 0 }
+      ];
+      if (Array.isArray(draft.activityMedia)) {
+        for (let i = 0; i < 3; i++) {
+          const m = draft.activityMedia[i];
+          if (m && typeof m === "object") {
+            state.activityMedia[i] = { img: m.img || "", caption: m.caption || "", w: m.w || 0, h: m.h || 0 };
+          }
+        }
+      }
+    }
+
     function loadDraft() {
       const saved = localStorage.getItem(draftKey);
       if (!saved) return false;
 
       try {
-        const draft = JSON.parse(saved);
-        ["subject", "className", "lessonDate", "lessonWeekday", "lessonPeriodSelect", "teacher", "grade", "method", "unit", "period", "topic", "standard", "assessment", "dreamitMethod"].forEach((id) => {
-          if (draft[id] !== undefined) $(id).value = draft[id];
-        });
-        if (draft.className && draft.className.includes("반")) {
-          const classMatch = draft.className.match(/\d+반/);
-          const gradeMatch = draft.className.match(/\d학년/);
-          if (classMatch) $("className").value = classMatch[0];
-          if (gradeMatch) $("grade").value = gradeMatch[0];
-        }
-        if (draft.dateInfo && !draft.lessonDate) {
-          const dateMatch = draft.dateInfo.match(/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})/);
-          const weekdayMatch = draft.dateInfo.match(/\(([월화수목금])\)/);
-          const periodMatch = draft.dateInfo.match(/(\d교시)/);
-          if (dateMatch) {
-            $("lessonDate").value = `${dateMatch[1]}-${dateMatch[2].padStart(2, "0")}-${dateMatch[3].padStart(2, "0")}`;
-          }
-          if (weekdayMatch) $("lessonWeekday").value = weekdayMatch[1];
-          if (periodMatch) $("lessonPeriodSelect").value = periodMatch[1];
-        }
-        if (draft.model) state.model = draft.model;
-        if (draft.achievementId) state.achievementId = draft.achievementId;
-        if (draft.templateName) state.templateName = draft.templateName;
-        if (draft.templateText) state.templateText = draft.templateText;
-        if (draft.promptId) state.promptId = draft.promptId;
-        if (draft.promptText) state.promptText = draft.promptText;
-        if (state.promptId === "metan-core") {
-          state.promptText = defaultPromptPresets[0].text;
-        }
-        if (Array.isArray(draft.tools)) state.tools = new Set(draft.tools);
-        if (Array.isArray(draft.sources)) state.sources = new Set(draft.sources);
-        if (Array.isArray(draft.careers)) state.careers = new Set(draft.careers);
-        if (Array.isArray(draft.careerLinks)) state.careerLinks = new Set(draft.careerLinks);
-        if (Array.isArray(draft.activityMedia)) {
-          for (let i = 0; i < 3; i++) {
-            const m = draft.activityMedia[i];
-            if (m && typeof m === "object") {
-              state.activityMedia[i] = { img: m.img || "", caption: m.caption || "", w: m.w || 0, h: m.h || 0 };
-            }
-          }
-        }
-      updateSaveStatus("저장된 입력 내용을 불러왔습니다");
+        applyDraftData(JSON.parse(saved));
+        updateSaveStatus("저장된 입력 내용을 불러왔습니다");
         return true;
       } catch (error) {
         localStorage.removeItem(draftKey);
         return false;
       }
+    }
+
+    // ── 이전 생성 지도안 보관함(localStorage, 최대 5개, 수동 저장) ──
+    const archiveKey = "metanDreamitLessonArchive";
+    const ARCHIVE_MAX = 5;
+
+    function getArchive() {
+      try {
+        const a = JSON.parse(localStorage.getItem(archiveKey) || "[]");
+        return Array.isArray(a) ? a : [];
+      } catch (e) {
+        return [];
+      }
+    }
+    function setArchive(list) {
+      localStorage.setItem(archiveKey, JSON.stringify(list));
+    }
+    function currentLessonTitle() {
+      const subj = $("subject").value.trim() || "교과";
+      const topic = $("topic").value.trim() || "주제 미정";
+      return `[${subj}] ${topic}`;
+    }
+    function saveLessonToArchive() {
+      const list = getArchive();
+      if (list.length >= ARCHIVE_MAX) {
+        // 한도 초과 → 경고와 함께 보관함을 열어 직접 삭제하게 한다.
+        openArchiveModal(true);
+        showToast(`보관함이 가득 찼습니다(최대 ${ARCHIVE_MAX}개). 삭제 후 다시 저장하세요.`);
+        return;
+      }
+      const snapshot = {
+        id: String(Date.now()),
+        savedAt: new Date().toLocaleString("ko-KR", { dateStyle: "short", timeStyle: "short" }),
+        title: currentLessonTitle(),
+        payload: draftPayload(),
+        ai: state.ai || null
+      };
+      list.push(snapshot);
+      try {
+        setArchive(list);
+      } catch (e) {
+        showToast("저장 실패: 사진 용량이 커서 보관함에 담지 못했습니다");
+        return;
+      }
+      showToast(`보관함에 저장했습니다 (${list.length}/${ARCHIVE_MAX})`);
+    }
+    function deleteArchived(id) {
+      setArchive(getArchive().filter((x) => x.id !== id));
+      renderArchiveList();
+      if ($("archiveWarning") && getArchive().length < ARCHIVE_MAX) $("archiveWarning").hidden = true;
+      showToast("보관함에서 삭제했습니다");
+    }
+    function loadArchivedLesson(id) {
+      const item = getArchive().find((x) => x.id === id);
+      if (!item) return;
+      applyDraftData(item.payload);
+      state.ai = item.ai || null;
+      renderSubjectOptions();
+      renderStandardOptions();
+      renderPromptOptions();
+      renderSources();
+      renderCareers();
+      renderCareerLinks();
+      renderModelOptions();
+      renderTools();
+      if ($("promptEditor")) $("promptEditor").value = state.promptText || "";
+      renderLesson();
+      saveDraft(false);
+      closeArchiveModal();
+      if (window.revealLessonPreview) window.revealLessonPreview();
+      showToast("이전 지도안을 불러왔습니다");
+    }
+    function renderArchiveList() {
+      const box = $("archiveList");
+      if (!box) return;
+      const list = getArchive();
+      if (!list.length) {
+        box.innerHTML = `<p class="archive-empty">저장된 지도안이 없습니다.<br>지도안을 생성한 뒤 미리보기 상단의 ‘보관함에 저장’ 버튼으로 추가하세요.</p>`;
+        return;
+      }
+      box.innerHTML = list.map((item) => `
+        <div class="archive-item">
+          <div class="archive-meta">
+            <b>${escapeHTML(item.title)}</b>
+            <span>${escapeHTML(item.savedAt)}${item.ai ? " · AI 생성" : " · 직접 작성"}</span>
+          </div>
+          <div class="archive-actions">
+            <button class="mini-action archive-load" data-id="${item.id}" type="button">불러오기</button>
+            <button class="mini-action archive-del" data-id="${item.id}" type="button">삭제</button>
+          </div>
+        </div>
+      `).join("");
+    }
+    function openArchiveModal(full) {
+      renderArchiveList();
+      if ($("archiveWarning")) $("archiveWarning").hidden = !full;
+      if ($("archiveModal")) $("archiveModal").hidden = false;
+    }
+    function closeArchiveModal() {
+      if ($("archiveModal")) $("archiveModal").hidden = true;
     }
 
     function loadPromptPresets() {
@@ -7827,6 +7972,25 @@ ${data.promptText}
         if (!r) return;
         r.classList.remove("open");
         r.setAttribute("aria-hidden", "true");
+      });
+    })();
+
+    // 보관함: 상단바에서 열기, 미리보기에서 저장, 모달 닫기/불러오기/삭제.
+    (function bindArchive() {
+      const openBtn = $("openArchiveBtn");
+      if (openBtn) openBtn.addEventListener("click", () => openArchiveModal(false));
+      const saveBtn = $("archiveSaveBtn");
+      if (saveBtn) saveBtn.addEventListener("click", saveLessonToArchive);
+      const closeBtn = $("archiveCloseBtn");
+      if (closeBtn) closeBtn.addEventListener("click", closeArchiveModal);
+      const overlay = $("archiveModal");
+      if (overlay) overlay.addEventListener("click", (e) => { if (e.target === overlay) closeArchiveModal(); });
+      const list = $("archiveList");
+      if (list) list.addEventListener("click", (e) => {
+        const loadEl = e.target.closest(".archive-load");
+        if (loadEl) { loadArchivedLesson(loadEl.dataset.id); return; }
+        const delEl = e.target.closest(".archive-del");
+        if (delEl) { deleteArchived(delEl.dataset.id); }
       });
     })();
 
