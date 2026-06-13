@@ -1032,6 +1032,23 @@
       background: #fff;
     }
 
+    /* 활동사진/활동지 인라인 편집 */
+    .media-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .media-thumb { max-width: 100%; max-height: 140px; object-fit: contain; border: 1px solid var(--line); border-radius: 4px; }
+    .media-actions { display: flex; gap: 6px; }
+    .media-mini { font-size: 11px; padding: 2px 9px; border: 1px solid var(--line); border-radius: 999px; background: #fff; cursor: pointer; color: #5d6b64; font-family: inherit; }
+    .media-mini:hover { background: #f0f4f1; }
+    .media-del { color: #c2453a; border-color: #f0c8c4; }
+    .media-add {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 120px; width: 100%; cursor: pointer;
+      color: #3a7d5d; font-weight: 700; font-size: 13px;
+      border: 1.5px dashed #8fc9ad; border-radius: 6px; background: #f4fbf7;
+    }
+    .media-add:hover { background: #e8f6ef; }
+    .caption-input { width: 100%; border: none; background: transparent; text-align: center; font-size: 12px; color: #5d6b64; font-family: inherit; }
+    .caption-input:focus { outline: 1px solid #8fc9ad; border-radius: 3px; }
+
     .process-table {
       width: 100%;
       min-width: 860px;
@@ -1806,6 +1823,7 @@
             <div class="toolbar-actions">
               <button class="icon-btn" id="copyBtn" type="button" title="내용 복사">⧉</button>
               <button class="icon-btn" id="downloadBtn" type="button" title="Word 문서 내려받기">↓</button>
+              <button class="icon-btn" id="hidePreviewBtn" type="button" title="지도안 숨기기" style="width:auto;padding:0 12px;font-size:12px;font-weight:700">지도안 숨기기 ✕</button>
             </div>
           </div>
           <div class="lesson" id="lessonArea"></div>
@@ -5946,7 +5964,13 @@
       templateText: "",
       promptId: "metan-core",
       promptText: defaultPromptPresets[0].text,
-      customPrompts: []
+      customPrompts: [],
+      // 활동 결과/사진 표(활동사진1·활동사진2·활동지) 칸별 1장 + 설명. img는 리사이즈된 JPEG dataURL.
+      activityMedia: [
+        { img: "", caption: "", w: 0, h: 0 },
+        { img: "", caption: "", w: 0, h: 0 },
+        { img: "", caption: "", w: 0, h: 0 }
+      ]
     };
 
     const $ = (id) => document.getElementById(id);
@@ -5993,6 +6017,56 @@
         .replaceAll("'", "&#039;");
     }
 
+    // 업로드 이미지를 캔버스로 축소(가로 최대 maxW)해 JPEG dataURL로 변환한다.
+    // localStorage(약 5MB) 한도를 넘지 않도록 용량을 줄이는 목적.
+    function readImageResized(file, maxW = 900) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            let w = img.naturalWidth || img.width;
+            let h = img.naturalHeight || img.height;
+            if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+            const canvas = document.createElement("canvas");
+            canvas.width = w; canvas.height = h;
+            canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+            resolve({ dataUrl: canvas.toDataURL("image/jpeg", 0.82), w, h });
+          };
+          img.onerror = reject;
+          img.src = reader.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // 활동사진 표에 넣을 이미지들(있는 칸만). rId는 100번대라 양식/직접생성 양쪽에서 충돌 없음.
+    function activityImageParts() {
+      const parts = [];
+      state.activityMedia.forEach((m, idx) => {
+        const b64 = m && m.img ? (String(m.img).split(",")[1] || "") : "";
+        if (b64) parts.push({ idx, rId: "rId" + (100 + idx), file: `media/actimg${idx}.jpeg`, base64: b64, w: m.w || 800, h: m.h || 600 });
+      });
+      return parts;
+    }
+
+    // 활동사진 셀(미리보기)의 내부 HTML — 사진 있으면 썸네일+교체/삭제, 없으면 올리기 버튼.
+    function activityMediaCellHTML(idx) {
+      const m = state.activityMedia[idx] || { img: "", caption: "" };
+      const addLabel = idx < 2 ? "＋ 사진 올리기" : "＋ 학습지 올리기";
+      if (m.img) {
+        return `<div class="media-wrap">
+          <img class="media-thumb" src="${m.img}" alt="활동사진${idx + 1}">
+          <div class="media-actions">
+            <label class="media-mini">교체<input type="file" accept="image/*" class="media-file" data-idx="${idx}" hidden></label>
+            <button type="button" class="media-mini media-del" data-idx="${idx}">삭제</button>
+          </div>
+        </div>`;
+      }
+      return `<label class="media-add"><span>${addLabel}</span><input type="file" accept="image/*" class="media-file" data-idx="${idx}" hidden></label>`;
+    }
+
     function updateSaveStatus(message) {
       const saveStatus = $("saveStatus");
       if (saveStatus) saveStatus.textContent = message;
@@ -6023,12 +6097,20 @@
         tools: Array.from(state.tools),
         sources: Array.from(state.sources),
         careers: Array.from(state.careers),
-        careerLinks: Array.from(state.careerLinks)
+        careerLinks: Array.from(state.careerLinks),
+        activityMedia: state.activityMedia
       };
     }
 
     function saveDraft(showMessage = false) {
-      localStorage.setItem(draftKey, JSON.stringify(draftPayload()));
+      try {
+        localStorage.setItem(draftKey, JSON.stringify(draftPayload()));
+      } catch (err) {
+        // 활동사진이 커서 저장 용량(약 5MB)을 넘으면 여기로 온다 — 앱은 계속 동작.
+        updateSaveStatus("저장 실패: 사진 용량이 커서 자동 저장이 생략되었습니다");
+        if (showMessage) showToast("사진 용량이 커서 저장하지 못했습니다");
+        return;
+      }
       updateSaveStatus(`마지막 저장: ${new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}`);
       if (showMessage) showToast("입력 내용을 이 브라우저에 저장했습니다");
     }
@@ -6076,6 +6158,14 @@
         if (Array.isArray(draft.sources)) state.sources = new Set(draft.sources);
         if (Array.isArray(draft.careers)) state.careers = new Set(draft.careers);
         if (Array.isArray(draft.careerLinks)) state.careerLinks = new Set(draft.careerLinks);
+        if (Array.isArray(draft.activityMedia)) {
+          for (let i = 0; i < 3; i++) {
+            const m = draft.activityMedia[i];
+            if (m && typeof m === "object") {
+              state.activityMedia[i] = { img: m.img || "", caption: m.caption || "", w: m.w || 0, h: m.h || 0 };
+            }
+          }
+        }
       updateSaveStatus("저장된 입력 내용을 불러왔습니다");
         return true;
       } catch (error) {
@@ -6594,8 +6684,8 @@
             <table class="form-table mini" aria-label="활동 결과 또는 활동 사진">
               <tbody>
                 <tr><th>활동사진1</th><th>활동사진2</th><th>활동지</th></tr>
-                <tr><td class="photo-cell">사진 첨부</td><td class="photo-cell">사진 첨부</td><td class="photo-cell">학습지 첨부</td></tr>
-                <tr><td class="caption-cell">활동 사진 설명</td><td class="caption-cell">활동 사진 설명</td><td class="caption-cell">활동 결과물 설명</td></tr>
+                <tr>${[0, 1, 2].map((i) => `<td class="photo-cell">${activityMediaCellHTML(i)}</td>`).join("")}</tr>
+                <tr>${[0, 1, 2].map((i) => `<td class="caption-cell"><input class="caption-input" data-idx="${i}" value="${escapeHTMLAttr(state.activityMedia[i].caption)}" placeholder="${i < 2 ? "활동 사진 설명" : "활동 결과물 설명"}"></td>`).join("")}</tr>
               </tbody>
             </table>
 
@@ -7293,6 +7383,33 @@ ${data.promptText}
       };
     }
 
+    // 인라인 그림 한 장을 그리는 run XML. 네임스페이스는 wp:inline에 직접 선언해
+    // 루트가 w:만 선언한 document.xml/조각 어디에 붙여도 유효하게 한다.
+    function drawingRunXml(rId, w, h, id, name) {
+      const cx = 1500000; // 약 4.16cm 폭 고정
+      const cy = Math.max(1, Math.round(cx * (h / w)));
+      return `<w:r><w:drawing>`
+        + `<wp:inline distT="0" distB="0" distL="0" distR="0"`
+        + ` xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"`
+        + ` xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"`
+        + ` xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"`
+        + ` xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">`
+        + `<wp:extent cx="${cx}" cy="${cy}"/>`
+        + `<wp:docPr id="${id}" name="${xmlEscape(name)}"/>`
+        + `<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">`
+        + `<pic:pic><pic:nvPicPr><pic:cNvPr id="${id}" name="${xmlEscape(name)}"/><pic:cNvPicPr/></pic:nvPicPr>`
+        + `<pic:blipFill><a:blip r:embed="${rId}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>`
+        + `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>`
+        + `<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic>`
+        + `</a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
+    }
+
+    // 직접생성 경로용 이미지 셀(w:tc).
+    function docxImageCell(part, name) {
+      return `<w:tc><w:tcPr><w:tcMar><w:top w:w="45" w:type="dxa"/><w:left w:w="65" w:type="dxa"/><w:bottom w:w="45" w:type="dxa"/><w:right w:w="65" w:type="dxa"/></w:tcMar></w:tcPr>`
+        + `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="0"/></w:pPr>${drawingRunXml(part.rId, part.w, part.h, 1000 + part.idx, name)}</w:p></w:tc>`;
+    }
+
     function buildDocxXml() {
       const C = collectLessonContent();
       const basicRows = [
@@ -7318,10 +7435,15 @@ ${data.promptText}
         [docxCell("차시", { shade: true, bold: true }), docxCell("내용", { shade: true, bold: true })],
         ...C.chasiRows.map((row) => [docxCell(row.label, { bold: true }), docxCell(row.content)])
       ];
+      const imgParts = activityImageParts();
+      const partByIdx = {};
+      imgParts.forEach((p) => { partByIdx[p.idx] = p; });
+      const photoCell = (i, fallback) => partByIdx[i] ? docxImageCell(partByIdx[i], `활동사진${i + 1}`) : docxCell(fallback);
+      const captionCell = (i, fallback) => docxCell((state.activityMedia[i] && state.activityMedia[i].caption) || fallback);
       const photoRows = [
         [docxCell("활동사진1", { shade: true, bold: true }), docxCell("활동사진2", { shade: true, bold: true }), docxCell("활동지", { shade: true, bold: true })],
-        [docxCell("(사진 첨부)"), docxCell("(사진 첨부)"), docxCell("(학습지 첨부)")],
-        [docxCell("활동 사진 설명"), docxCell("활동 사진 설명"), docxCell("활동 결과물 설명")]
+        [photoCell(0, "(사진 첨부)"), photoCell(1, "(사진 첨부)"), photoCell(2, "(학습지 첨부)")],
+        [captionCell(0, "활동 사진 설명"), captionCell(1, "활동 사진 설명"), captionCell(2, "활동 결과물 설명")]
       ];
       const docTitle = C.docTitle;
       const data = C.data;
@@ -7436,6 +7558,28 @@ ${data.promptText}
       });
     }
 
+    // 양식 셀(w:tc) 하나에 그림을 넣는다(기존 문단 제거 후 그림 문단 삽입).
+    function wSetCellImage(tc, part, id, name) {
+      const xml = `<w:p xmlns:w="${W_NS}"><w:pPr><w:jc w:val="center"/></w:pPr>${drawingRunXml(part.rId, part.w, part.h, id, name)}</w:p>`;
+      const frag = new DOMParser().parseFromString(xml, "application/xml");
+      if (frag.getElementsByTagName("parsererror").length) return;
+      wChildren(tc, "w:p").forEach((p) => tc.removeChild(p));
+      tc.appendChild(tc.ownerDocument.importNode(frag.documentElement, true));
+    }
+
+    // 양식의 활동사진 표(헤더행 / 사진행 / 설명행)에 이미지와 설명을 채운다.
+    function wFillPhotoTable(rows, imgParts) {
+      const partByIdx = {};
+      imgParts.forEach((p) => { partByIdx[p.idx] = p; });
+      const photoCells = rows[1] ? wChildren(rows[1], "w:tc") : [];
+      const capCells = rows[2] ? wChildren(rows[2], "w:tc") : [];
+      [0, 1, 2].forEach((i) => {
+        if (photoCells[i] && partByIdx[i]) wSetCellImage(photoCells[i], partByIdx[i], 1000 + i, `활동사진${i + 1}`);
+        const cap = state.activityMedia[i] && state.activityMedia[i].caption;
+        if (capCells[i] && cap) wSetCellText(capCells[i], cap);
+      });
+    }
+
     // 공식 양식 docx를 불러와 각 칸에 내용만 채운 blob을 만든다. 실패하면 throw 하여
     // 호출부가 직접-생성(scratch) 경로로 넘어가게 한다.
     async function buildTemplateBlob(C) {
@@ -7447,6 +7591,7 @@ ${data.promptText}
       const doc = new DOMParser().parseFromString(xmlText, "application/xml");
       if (doc.getElementsByTagName("parsererror").length) throw new Error("template xml parse error");
 
+      const imgParts = activityImageParts();
       const tables = Array.from(doc.getElementsByTagName("w:tbl"));
       let worksheetAnchor = null;
       tables.forEach((tbl) => {
@@ -7455,6 +7600,8 @@ ${data.promptText}
         const r0 = wChildren(rows[0], "w:tc");
         const r0Text = r0.map((c) => wNorm(wCellText(c)));
 
+        // 활동 결과/사진 표(활동사진1·활동사진2·활동지): 사진·설명 채우기.
+        if (r0Text[0] === "활동사진1" && r0Text[1] === "활동사진2") { wFillPhotoTable(rows, imgParts); return; }
         // 활동지 머리(Ⅲ … 활동지) 다음에 활동지 본문을 붙인다.
         if (r0[0] && wCellText(r0[0]).trim() === "Ⅲ") { worksheetAnchor = tbl; return; }
         // 제목 표: "(과목명)" 예시가 든 셀을 실제 제목으로 교체.
@@ -7472,16 +7619,32 @@ ${data.promptText}
       let out = new XMLSerializer().serializeToString(doc);
       if (!out.startsWith("<?xml")) out = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' + out;
       zip.file("word/document.xml", out);
+
+      // 활동사진이 있으면 미디어 파일·관계·콘텐츠타입(jpeg)을 양식 zip에 추가한다.
+      if (imgParts.length) {
+        imgParts.forEach((p) => zip.file(`word/${p.file}`, p.base64, { base64: true }));
+        let relsXml = await zip.file("word/_rels/document.xml.rels").async("string");
+        const relItems = imgParts.map((p) => `<Relationship Id="${p.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="${p.file}"/>`).join("");
+        relsXml = relsXml.replace("</Relationships>", relItems + "</Relationships>");
+        zip.file("word/_rels/document.xml.rels", relsXml);
+        let ct = await zip.file("[Content_Types].xml").async("string");
+        if (!/Extension="jpeg"/.test(ct)) {
+          ct = ct.replace("</Types>", '<Default Extension="jpeg" ContentType="image/jpeg"/></Types>');
+          zip.file("[Content_Types].xml", ct);
+        }
+      }
       return zip.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
     }
 
     // 양식 파일을 못 쓸 때(오프라인·로컬 파일 등) 쓰는 직접 생성 경로.
     async function buildScratchBlob() {
       const zip = new JSZip();
+      const imgParts = activityImageParts();
       zip.file("[Content_Types].xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
           <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
           <Default Extension="xml" ContentType="application/xml"/>
+          <Default Extension="jpeg" ContentType="image/jpeg"/>
           <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
         </Types>`);
       zip.folder("_rels").file(".rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -7489,8 +7652,10 @@ ${data.promptText}
           <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
         </Relationships>`);
       zip.folder("word").file("document.xml", buildDocxXml());
+      const relItems = imgParts.map((p) => `<Relationship Id="${p.rId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="${p.file}"/>`).join("");
       zip.folder("word").folder("_rels").file("document.xml.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-        <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>`);
+        <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${relItems}</Relationships>`);
+      imgParts.forEach((p) => zip.file(`word/${p.file}`, p.base64, { base64: true }));
       return zip.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
     }
 
@@ -7547,6 +7712,11 @@ ${data.promptText}
       state.careers = new Set(["협력적 의사소통", "창업가 정신", "진로 설계"]);
       state.careerLinks = new Set(["진로와 나의 이해", "진로 설계와 실천"]);
       state.ai = null;
+      state.activityMedia = [
+        { img: "", caption: "", w: 0, h: 0 },
+        { img: "", caption: "", w: 0, h: 0 },
+        { img: "", caption: "", w: 0, h: 0 }
+      ];
       state.achievementId = "정보-9정01-01-001";
       state.promptId = "metan-core";
       state.promptText = defaultPromptPresets[0].text;
@@ -7610,6 +7780,55 @@ ${data.promptText}
         scheduleSave();
       });
     });
+
+    // 미리보기의 활동사진/활동지 칸 인라인 편집(이벤트 위임 — lessonArea는 매번 다시 그려지므로
+    // 부모에 한 번만 리스너를 건다).
+    (function bindActivityMediaEvents() {
+      const area = $("lessonArea");
+      if (!area) return;
+      area.addEventListener("change", async (e) => {
+        const input = e.target.closest(".media-file");
+        if (!input || !input.files || !input.files[0]) return;
+        const idx = Number(input.dataset.idx);
+        try {
+          const { dataUrl, w, h } = await readImageResized(input.files[0]);
+          state.activityMedia[idx] = { img: dataUrl, caption: state.activityMedia[idx].caption || "", w, h };
+          renderLesson();
+          saveDraft(false);
+          showToast("사진을 추가했습니다");
+        } catch (err) {
+          showToast("이미지를 불러오지 못했습니다");
+        }
+      });
+      area.addEventListener("click", (e) => {
+        const del = e.target.closest(".media-del");
+        if (!del) return;
+        const idx = Number(del.dataset.idx);
+        state.activityMedia[idx] = { img: "", caption: state.activityMedia[idx].caption || "", w: 0, h: 0 };
+        renderLesson();
+        saveDraft(false);
+      });
+      // 설명 입력은 다시 그리면 포커스가 풀리므로 state만 갱신하고 저장만 예약한다.
+      area.addEventListener("input", (e) => {
+        const cap = e.target.closest(".caption-input");
+        if (!cap) return;
+        const idx = Number(cap.dataset.idx);
+        state.activityMedia[idx].caption = cap.value;
+        scheduleSave();
+      });
+    })();
+
+    // 지도안 숨기기: 미리보기 영역을 접는다(다시 생성/적용하면 자동으로 펼쳐짐).
+    (function bindHidePreview() {
+      const btn = $("hidePreviewBtn");
+      if (!btn) return;
+      btn.addEventListener("click", () => {
+        const r = $("previewReveal");
+        if (!r) return;
+        r.classList.remove("open");
+        r.setAttribute("aria-hidden", "true");
+      });
+    })();
 
     $("subject").addEventListener("change", () => {
       renderStandardOptions();
