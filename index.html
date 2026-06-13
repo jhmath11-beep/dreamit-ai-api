@@ -1785,7 +1785,9 @@
           </div>
           <div class="gen-warning" id="genWarning">⚠️ AI 기본 작성 원칙을 먼저 작성해주세요</div>
           <button class="primary" id="generateBtn" type="button">AI 수업 추천으로 지도안 만들기</button>
-          <div class="secondary-row">
+          <!-- 보조 버튼(초기예시·제작방향·요청문복사·임시저장)은 숨김. 자동 저장이 동작하고
+               요청문 복사는 NotebookLM 열기에서 자동 처리되어 불필요. JS 리스너 유지를 위해 요소는 남겨둠. -->
+          <div class="secondary-row" style="display:none">
             <button class="secondary" id="resetBtn" type="button">초기 예시</button>
             <button class="secondary" id="pilotBtn" type="button">제작 방향</button>
             <button class="secondary" id="promptBtn" type="button">AI 요청문 복사</button>
