@@ -1358,6 +1358,7 @@
     /* ===== 로그인 게이트 (로그인 전 전체 화면) ===== */
     /* 로그인 전에는 앱을 통째로 숨기고 로그인 화면만 보여준다(오버레이 누수 방지). */
     .login-gate { display: none; }
+    body.authed .login-gate { display: none !important; }
     body:not(.authed) .app { display: none !important; }
     body:not(.authed) .login-gate {
       display: flex; align-items: center; justify-content: center;
@@ -6292,7 +6293,7 @@
     function unlockApp() {
       document.body.classList.add("authed");
       const gate = $("loginGate");
-      if (gate) gate.setAttribute("aria-hidden", "true");
+      if (gate) { gate.setAttribute("aria-hidden", "true"); gate.style.display = "none"; }
       const emailEl = $("userEmail");
       if (emailEl) emailEl.textContent = authUserEmail || "";
       const logoutEl = $("logoutBtn");
@@ -6304,7 +6305,7 @@
       try { sessionStorage.removeItem("dreamit_idtoken"); } catch (e) {}
       document.body.classList.remove("authed");
       const gate = $("loginGate");
-      if (gate) gate.setAttribute("aria-hidden", "false");
+      if (gate) { gate.setAttribute("aria-hidden", "false"); gate.style.display = ""; }
       const emailEl = $("userEmail");
       if (emailEl) emailEl.textContent = "";
       const logoutEl = $("logoutBtn");
