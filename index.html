@@ -1725,6 +1725,42 @@
     .pipe-step span { color: #2E2A55; }
     /* 시작 버튼 = 원래 히어로 바탕에 쓰던 비비드 그라데이션 */
     .hero-btn-primary { background: linear-gradient(135deg, #7C3AED 0%, #5B6EF5 48%, #22D3EE 100%) !important; color: #fff !important; box-shadow: 0 12px 26px rgba(79,70,229,.30) !important; border: 0; }
+
+    /* ===== 제목 옆 'dream.jbot.kr?' 도움말 버튼 + 영상/안내문 모달 ===== */
+    .help-launch {
+      align-self: center; margin-left: 14px; white-space: nowrap; cursor: pointer;
+      padding: 7px 15px; border-radius: 999px; font-size: 13px; font-weight: 800;
+      color: #fff; border: 0;
+      background: linear-gradient(135deg, #7C3AED 0%, #5B6EF5 55%, #22D3EE 100%);
+      box-shadow: 0 6px 16px rgba(79,70,229,.28); transition: transform .12s ease, box-shadow .15s ease;
+    }
+    .help-launch:hover { transform: translateY(-1px); box-shadow: 0 9px 20px rgba(79,70,229,.36); }
+    .help-launch::before { content: "❔ "; }
+    @media (max-width: 860px) { .help-launch { margin-left: 8px; padding: 6px 12px; font-size: 12px; } }
+
+    /* 선택지 모달 */
+    .help-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 20px; }
+    @media (max-width: 560px) { .help-choices { grid-template-columns: 1fr; } }
+    .help-choice {
+      display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left;
+      padding: 18px 18px 16px; border-radius: 14px; cursor: pointer;
+      background: var(--mint); border: 1.5px solid var(--green-2); color: var(--primary-deep);
+      transition: transform .12s ease, box-shadow .15s ease, border-color .15s ease;
+    }
+    .help-choice:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: 0 10px 22px rgba(91,110,245,.18); }
+    .help-choice .hc-ic { font-size: 30px; line-height: 1; }
+    .help-choice .hc-t { font-size: 15px; font-weight: 800; }
+    .help-choice .hc-d { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+    /* 영상/PDF 모달 카드(넓게) */
+    #videoModal .modal-card, #pdfModal .modal-card { width: min(980px, 100%); max-height: 92vh; }
+    .media-body { padding: 14px 16px 18px; }
+    .media-frame { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; border-radius: 10px; overflow: hidden; }
+    .media-frame iframe, .media-frame video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .pdf-frame { width: 100%; height: 78vh; border: 0; border-radius: 8px; background: #f3f3f3; }
+    .pdf-newtab { font-size: 12px; font-weight: 800; color: var(--primary); text-decoration: none; border: 1px solid var(--green-2); border-radius: 8px; padding: 6px 10px; }
+    .pdf-newtab:hover { background: var(--mint); }
+    .media-note { margin: 10px 2px 0; font-size: 12px; color: var(--muted); }
   </style>
 </head>
 <body>
@@ -1747,6 +1783,7 @@
             <h1>꿈it(잇)다 진로 연계 교과 수업 설계 지도안 작성 도구</h1>
             <p>교과 수업 속 진로 탐색과 학생 활동을 지도안으로 연결</p>
           </div>
+          <button class="help-launch" id="helpLaunchBtn" type="button" title="사용 안내 영상 / 안내문 보기">dream.jbot.kr?</button>
         </div>
         <div class="topbar-actions">
           <button class="topbar-btn" id="openArchiveBtn" type="button">📂 이전 생성 지도안 보기</button>
@@ -2106,6 +2143,130 @@
       <div class="archive-list" id="archiveList"></div>
     </div>
   </div>
+
+  <!-- dream.jbot.kr? 도움말: 선택지 모달 -->
+  <div class="modal-overlay" id="helpModal" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>dream.jbot.kr 사용 안내</h3>
+        <button class="icon-btn" id="helpCloseBtn" type="button" title="닫기">✕</button>
+      </div>
+      <div class="help-choices">
+        <button class="help-choice" id="helpVideoBtn" type="button">
+          <span class="hc-ic">🎬</span>
+          <span class="hc-t">영상 확인</span>
+          <span class="hc-d">매라매와 함께하는 ‘꿈it(잇)다’ 사용 안내 영상을 재생합니다</span>
+        </button>
+        <button class="help-choice" id="helpPdfBtn" type="button">
+          <span class="hc-ic">📄</span>
+          <span class="hc-t">안내문 보기</span>
+          <span class="hc-d">지도안 도구 사용 안내서(PDF)를 화면에서 봅니다</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 영상 모달 -->
+  <div class="modal-overlay" id="videoModal" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>🎬 매라매와 함께하는 ‘꿈it(잇)다’ 사용 안내</h3>
+        <button class="icon-btn" id="videoCloseBtn" type="button" title="닫기">✕</button>
+      </div>
+      <div class="media-body">
+        <div class="media-frame" id="videoFrameBox"></div>
+        <p class="media-note" id="videoNote"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 안내문(PDF) 모달 -->
+  <div class="modal-overlay" id="pdfModal" hidden>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>📄 꿈it(잇)다 지도안 도구 사용 안내서</h3>
+        <div style="display:flex;align-items:center;gap:8px">
+          <a class="pdf-newtab" id="pdfNewTabBtn" href="guide/dreamit-guide.pdf" target="_blank" rel="noopener">새 탭으로 열기 ↗</a>
+          <button class="icon-btn" id="pdfCloseBtn" type="button" title="닫기">✕</button>
+        </div>
+      </div>
+      <div class="media-body">
+        <iframe class="pdf-frame" id="pdfFrame" title="꿈it(잇)다 지도안 도구 사용 안내서"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ===== dream.jbot.kr? 도움말(영상/안내문) ===== */
+    // ▼▼▼ 유튜브에 '미등록(Unlisted)'으로 올린 뒤, 영상 ID 11자리를 아래에 넣으세요. ▼▼▼
+    //    예) https://youtu.be/AbCdEfGhIjK  →  "AbCdEfGhIjK"
+    //        https://www.youtube.com/watch?v=AbCdEfGhIjK  →  "AbCdEfGhIjK"
+    const HELP_VIDEO_YOUTUBE_ID = "rcqdT7_FJBg";
+    // ▲▲▲ 비워 두면 안내 영상 자리에 '아직 등록되지 않았습니다' 메시지가 표시됩니다. ▲▲▲
+    const HELP_PDF_URL = "guide/dreamit-guide.pdf";
+
+    (function () {
+      const byId = (id) => document.getElementById(id);
+      const open = (el) => { if (el) el.hidden = false; };
+      const close = (el) => { if (el) el.hidden = true; };
+
+      const helpModal = byId("helpModal");
+      const videoModal = byId("videoModal");
+      const pdfModal = byId("pdfModal");
+
+      function openVideo() {
+        close(helpModal);
+        const box = byId("videoFrameBox");
+        const note = byId("videoNote");
+        if (box) {
+          if (HELP_VIDEO_YOUTUBE_ID && HELP_VIDEO_YOUTUBE_ID.trim()) {
+            const src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(HELP_VIDEO_YOUTUBE_ID.trim()) + "?rel=0&autoplay=1";
+            box.innerHTML = '<iframe src="' + src + '" title="사용 안내 영상" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>';
+            if (note) note.textContent = "재생되지 않으면 우상단 ‘닫기’ 후 다시 시도하거나, 유튜브에서 직접 열어 주세요.";
+          } else {
+            box.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#fff;text-align:center;padding:20px;font-weight:700;line-height:1.6">안내 영상이 아직 등록되지 않았습니다.<br><span style="font-weight:500;opacity:.85">관리자: 유튜브에 영상을 올린 뒤 코드의 HELP_VIDEO_YOUTUBE_ID 값에 영상 ID를 넣어 주세요.</span></div>';
+            if (note) note.textContent = "";
+          }
+        }
+        open(videoModal);
+      }
+      function closeVideo() {
+        const box = byId("videoFrameBox");
+        if (box) box.innerHTML = "";   // iframe 제거 → 재생 중지
+        close(videoModal);
+      }
+      function openPdf() {
+        close(helpModal);
+        const fr = byId("pdfFrame");
+        if (fr && !fr.getAttribute("src")) fr.setAttribute("src", HELP_PDF_URL);
+        open(pdfModal);
+      }
+      function closePdf() {
+        close(pdfModal);
+      }
+
+      const onClick = (el, fn) => { if (el) el.addEventListener("click", fn); };
+      onClick(byId("helpLaunchBtn"), () => open(helpModal));
+      onClick(byId("helpCloseBtn"), () => close(helpModal));
+      onClick(byId("helpVideoBtn"), openVideo);
+      onClick(byId("helpPdfBtn"), openPdf);
+      onClick(byId("videoCloseBtn"), closeVideo);
+      onClick(byId("pdfCloseBtn"), closePdf);
+
+      // 배경(오버레이) 클릭으로 닫기
+      [ [helpModal, () => close(helpModal)], [videoModal, closeVideo], [pdfModal, closePdf] ]
+        .forEach(([modal, fn]) => {
+          if (modal) modal.addEventListener("click", (e) => { if (e.target === modal) fn(); });
+        });
+      // ESC로 닫기
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Escape") return;
+        if (videoModal && !videoModal.hidden) closeVideo();
+        else if (pdfModal && !pdfModal.hidden) closePdf();
+        else if (helpModal && !helpModal.hidden) close(helpModal);
+      });
+    })();
+  </script>
 
   <script>
     const models = [
