@@ -6853,23 +6853,33 @@
       });
     }
 
+    // 진로요소별 키워드 사전 — 수업주제·교과·성취기준·수업모형 텍스트에서 매칭
+    // 키워드는 자유롭게 추가/삭제 가능(\s?는 띄어쓰기 유무 모두 허용, i 플래그로 대소문자 무시)
+    const careerKeywordMap = {
+      "자기 이해 역량": /성찰|자기\s?이해|자기소개|자기\s?평가|자기관리|나를|나의\s?(꿈|강점|흥미|적성)|흥미|적성|강점|약점|가치관|정체성|자아|자존감|감정\s?표현|진로\s?흥미|적성\s?검사|개별\s?활동|포트폴리오/i,
+      "대인관계 역량": /모둠|협력|협동|팀워크|팀\s?활동|갈등\s?(해결|관리)|배려|공감|역할\s?분담|상호작용|소집단|짝\s?활동|존중|친구\s?관계|또래/i,
+      "변화하는 사회": /변화|미래\s?사회|사회\s?변화|4차|인공지능|AI|빅데이터|기술\s?발전|신산업|트렌드|직업\s?세계의\s?변화|융합|메타버스|자동화|로봇|지속가능|기후/i,
+      "직업 정보 탐색": /직업\s?(정보|탐색|조사|체험|세계)|진로\s?(탐색|정보|조사)|직업인|직업\s?인터뷰|분야\s?탐색|자격증?|진로\s?검색|진로\s?체험|일의\s?세계/i,
+      "진로 설계": /설계|진로\s?계획|목표\s?설정|로드맵|비전|진학\s?(계획|준비)|미래\s?계획|커리어\s?플랜|진로\s?로드맵/i,
+      "진로 실천": /실천|실행|도전|시도|행동으로|적용|봉사|체험\s?활동|진로\s?활동|실습|현장\s?체험/i,
+      "진로 의사 결정": /선택|의사\s?결정|결정하기|판단|우선순위|대안\s?(탐색|비교)|비교\s?분석|진로\s?결정/i,
+      "평생 학습": /평생\s?학습|자기\s?주도\s?학습|배움의\s?즐거움|꾸준한\s?학습|학습\s?습관|독서\s?활동|자율\s?학습|지속적\s?성장/i,
+      "협력적 의사소통": /발표|토론|토의|의사소통|소통|공유|설득|표현하기|글쓰기|말하기|프레젠테이션|디베이트|보고서|피드백|협력적/i,
+      "창업가 정신": /앱\s?(개발|제작)|개발|문제\s?해결|프로젝트|창업|아이디어|제작|기획|혁신|발명|창의(적|성)|디자인\s?씽킹|스타트업|메이커|산출물|작품\s?제작/i
+    };
+
     function recommendCareers() {
       const standard = selectedStandard();
       const text = `${$("subject").value} ${$("topic").value} ${standardLabel(standard)} ${$("method").value}`;
-      const recommended = new Set(["협력적 의사소통"]);
+      const recommended = new Set();
 
-      if (/앱|개발|문제|해결|프로젝트|창업|아이디어|제작/.test(text)) {
-        recommended.add("창업가 정신");
-        recommended.add("진로 설계");
+      for (const [career, pattern] of Object.entries(careerKeywordMap)) {
+        if (pattern.test(text)) recommended.add(career);
       }
-      if (/직업|진로|역할|사회|미래/.test(text)) {
-        recommended.add("직업 정보 탐색");
-        recommended.add("변화하는 사회");
-      }
-      if (/모둠|협력|발표|피드백|의사소통/.test(text)) {
-        recommended.add("대인관계 역량");
-      }
-      if (/성찰|자기|개별|포트폴리오/.test(text)) {
+
+      // 어떤 키워드도 걸리지 않으면 가장 보편적인 두 요소를 기본 추천
+      if (recommended.size === 0) {
+        recommended.add("협력적 의사소통");
         recommended.add("자기 이해 역량");
       }
 
@@ -6877,7 +6887,7 @@
       renderCareers();
       renderLesson();
       saveDraft(false);
-      showToast("수업 내용에 맞춰 진로교육 요소를 추천했습니다");
+      showToast(`수업 내용에 맞춰 진로교육 요소 ${recommended.size}개를 추천했습니다`);
     }
 
     function lessonData() {
