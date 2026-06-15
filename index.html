@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>꿈it(잇)다 진로 연계 교과 수업 설계 지도안 작성 도구</title>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root {
       --ink: #17201c;
@@ -1353,6 +1354,35 @@
         display: none !important;
       }
     }
+
+    /* ===== 로그인 게이트 (전체 앱 잠금) ===== */
+    .login-gate {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      background: linear-gradient(135deg, #4338CA 0%, #6366F1 55%, #818CF8 100%);
+    }
+    .login-gate.hidden { display: none; }
+    .login-card {
+      width: min(420px, 100%);
+      background: #fff;
+      border-radius: 20px;
+      padding: 36px 32px 28px;
+      box-shadow: 0 24px 60px rgba(31,41,120,.35);
+      text-align: center;
+    }
+    .login-mark {
+      width: 56px; height: 56px; margin: 0 auto 16px;
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 22px; color: #fff;
+      background: linear-gradient(135deg, #4338CA, #6366F1);
+    }
+    .login-card h2 { margin: 0 0 8px; font-size: 20px; color: #1f2660; }
+    .login-desc { margin: 0 0 22px; font-size: 14px; color: #4b5170; line-height: 1.6; }
+    .login-btn-wrap { display: flex; justify-content: center; min-height: 44px; }
+    .login-error { margin: 14px 0 0; font-size: 13px; color: #d92d20; min-height: 18px; line-height: 1.5; }
+    .login-foot { margin: 18px 0 0; font-size: 12px; color: #8b90ad; line-height: 1.5; }
   </style>
   <style>
     /* ===== 2026 리뉴얼: 봄/자연 민트-라임 테마 + 탭 구조 ===== */
@@ -1688,6 +1718,16 @@
   </style>
 </head>
 <body>
+  <div class="login-gate" id="loginGate" aria-hidden="false">
+    <div class="login-card">
+      <div class="login-mark">it</div>
+      <h2>꿈it(잇)다 지도안 도구</h2>
+      <p class="login-desc">학교 구글 계정(<b>@goedu.kr</b>)으로 로그인해야 사용할 수 있습니다.</p>
+      <div id="googleSignInBtn" class="login-btn-wrap"></div>
+      <p class="login-error" id="loginError"></p>
+      <p class="login-foot">연구학교 시범 운영용 · 무분별한 API 사용 방지를 위해 로그인을 받습니다.</p>
+    </div>
+  </div>
   <div class="app">
     <header class="topbar">
       <div class="topbar-inner">
@@ -6208,6 +6248,99 @@
     // 비워두거나 호출 실패 시 자동으로 시뮬레이션으로 동작합니다.
     const AI_ENDPOINT = "/api/generate";
 
+    // ── Google 로그인 (학교 계정 @goedu.kr 전용) ─────────────────
+    // ▼▼ Google Cloud Console에서 발급받은 OAuth Client ID를 여기에 넣으세요. ▼▼
+    //    (예: "1234567890-abcdefg.apps.googleusercontent.com")
+    //    이 값은 서버(Vercel 환경변수 GOOGLE_CLIENT_ID)와 반드시 같아야 합니다.
+    const GOOGLE_CLIENT_ID = "321616638532-3pj8163dtvgqipdam23c779ujmn8e0kp.apps.googleusercontent.com";
+    const ALLOWED_DOMAINS = ["goedu.kr"];
+    const ALLOWED_EMAILS = ["jhmath11@gmail.com"];
+    let authToken = null;          // 현재 로그인 ID 토큰(JWT)
+    let authUserEmail = null;
+
+    function parseJwt(token) {
+      try {
+        const base = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+        const json = decodeURIComponent(atob(base).split("").map(
+          (c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)).join(""));
+        return JSON.parse(json);
+      } catch (e) { return null; }
+    }
+
+    function emailAllowed(email) {
+      const e = String(email || "").toLowerCase();
+      const domain = e.includes("@") ? e.split("@")[1] : "";
+      return ALLOWED_EMAILS.includes(e) || ALLOWED_DOMAINS.includes(domain);
+    }
+
+    function showLoginError(msg) {
+      const el = $("loginError");
+      if (el) el.textContent = msg || "";
+    }
+
+    function unlockApp() {
+      const gate = $("loginGate");
+      if (gate) { gate.classList.add("hidden"); gate.setAttribute("aria-hidden", "true"); }
+    }
+
+    function lockApp(message) {
+      authToken = null; authUserEmail = null;
+      try { sessionStorage.removeItem("dreamit_idtoken"); } catch (e) {}
+      const gate = $("loginGate");
+      if (gate) { gate.classList.remove("hidden"); gate.setAttribute("aria-hidden", "false"); }
+      showLoginError(message || "");
+    }
+
+    function handleCredentialResponse(response) {
+      const token = response && response.credential;
+      const payload = token ? parseJwt(token) : null;
+      if (!payload) { showLoginError("로그인에 실패했습니다. 다시 시도해 주세요."); return; }
+      if (payload.email_verified === false) { showLoginError("이메일이 확인되지 않은 계정입니다."); return; }
+      if (!emailAllowed(payload.email)) {
+        showLoginError(`학교 계정(@${ALLOWED_DOMAINS[0]})으로만 로그인할 수 있습니다.\n(${payload.email})`);
+        return;
+      }
+      authToken = token;
+      authUserEmail = payload.email;
+      try { sessionStorage.setItem("dreamit_idtoken", token); } catch (e) {}
+      showLoginError("");
+      unlockApp();
+    }
+
+    function initGoogleLogin() {
+      // 저장된 토큰이 아직 만료 전이면 바로 통과(세션 유지)
+      try {
+        const saved = sessionStorage.getItem("dreamit_idtoken");
+        const p = saved ? parseJwt(saved) : null;
+        if (p && emailAllowed(p.email) && p.exp && p.exp * 1000 > Date.now() + 30000) {
+          authToken = saved; authUserEmail = p.email; unlockApp();
+        }
+      } catch (e) {}
+
+      if (!window.google || !google.accounts || !google.accounts.id) {
+        // GIS 스크립트가 아직 안 떴으면 잠시 후 재시도
+        setTimeout(initGoogleLogin, 300);
+        return;
+      }
+      if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID.startsWith("여기에")) {
+        showLoginError("관리자: GOOGLE_CLIENT_ID가 아직 설정되지 않았습니다.");
+        return;
+      }
+      google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleCredentialResponse,
+        auto_select: true,
+        hd: ALLOWED_DOMAINS[0]   // 계정 선택창에서 학교 도메인 우선 표시(참고용)
+      });
+      const wrap = $("googleSignInBtn");
+      if (wrap) {
+        google.accounts.id.renderButton(wrap, {
+          theme: "filled_blue", size: "large", shape: "pill", text: "signin_with", width: 280
+        });
+      }
+      if (!authToken) google.accounts.id.prompt();  // 원탭 자동 로그인 시도
+    }
+
     // ── NotebookLM 반자동 연계 ─────────────────────────────────
     // 과목별 NotebookLM 노트북 주소를 채워 넣으세요. 키는 '교과' 드롭다운 값과 정확히 같아야 합니다.
     // 예) "수학": "https://notebooklm.google.com/notebook/xxxxxxxx",
@@ -7281,11 +7414,20 @@ ${data.promptText}
 
     async function callAI() {
       const data = lessonData();
+      const headers = { "content-type": "application/json" };
+      if (authToken) headers["authorization"] = `Bearer ${authToken}`;
       const res = await fetch(AI_ENDPOINT, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers,
         body: JSON.stringify({ system: data.promptText, user: aiUserPrompt() })
       });
+      if (res.status === 401 || res.status === 403) {
+        const errText = await res.text().catch(() => "");
+        let msg = "로그인이 만료되었거나 권한이 없습니다. 다시 로그인해 주세요.";
+        try { const j = JSON.parse(errText); if (j && j.error) msg = j.error; } catch (e) {}
+        lockApp(msg);
+        throw new Error(msg);
+      }
       if (!res.ok) {
         const errText = await res.text().catch(() => "");
         throw new Error(`AI ${res.status} ${errText.slice(0, 200)}`);
@@ -8276,6 +8418,7 @@ ${data.promptText}
     renderLesson();
     loadNotebookLinks();
     loadReferenceList();
+    initGoogleLogin();
 
     /* ===== 탭 전환 / 완료 상태 / 생성 게이팅 / 미리보기 노출 ===== */
     (function () {

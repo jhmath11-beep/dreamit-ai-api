@@ -75,8 +75,47 @@ function setCors(res) {
   // 데모용: 모든 출처 허용. 운영 시 특정 도메인으로 제한하려면 "*" 대신 도메인을 넣으세요.
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Expose-Headers", "x-reference-count");
+}
+
+// ── Google 로그인 검증 ─────────────────────────────────────────────
+// 브라우저가 보낸 Google ID 토큰(JWT)을 Google tokeninfo로 검증하고,
+// 허용된 도메인(@goedu.kr) 또는 허용 이메일만 통과시킨다.
+// 라이브러리 없이(무설치) 동작하도록 tokeninfo 엔드포인트를 사용한다.
+const ALLOWED_DOMAINS = (process.env.ALLOWED_EMAIL_DOMAINS || "goedu.kr")
+  .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+const ALLOWED_EMAILS = (process.env.ALLOWED_EMAILS || "jhmath11@gmail.com")
+  .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+
+async function verifyGoogleUser(req) {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  if (!clientId) return { ok: false, status: 500, error: "GOOGLE_CLIENT_ID 환경변수가 설정되지 않았습니다." };
+
+  const auth = req.headers["authorization"] || req.headers["Authorization"] || "";
+  const token = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
+  if (!token) return { ok: false, status: 401, error: "로그인이 필요합니다." };
+
+  let payload;
+  try {
+    const r = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(token)}`);
+    if (!r.ok) return { ok: false, status: 401, error: "로그인 토큰이 유효하지 않습니다(만료되었을 수 있어요). 다시 로그인해 주세요." };
+    payload = await r.json();
+  } catch (e) {
+    return { ok: false, status: 502, error: "로그인 토큰 검증 중 오류가 발생했습니다." };
+  }
+
+  if (payload.aud !== clientId) return { ok: false, status: 401, error: "토큰 대상이 일치하지 않습니다." };
+  if (payload.email_verified !== "true" && payload.email_verified !== true) {
+    return { ok: false, status: 403, error: "이메일이 확인되지 않은 계정입니다." };
+  }
+  const email = String(payload.email || "").toLowerCase();
+  const domain = email.includes("@") ? email.split("@")[1] : "";
+  const allowed = ALLOWED_EMAILS.includes(email) || ALLOWED_DOMAINS.includes(domain);
+  if (!allowed) {
+    return { ok: false, status: 403, error: "학교 계정(@goedu.kr)으로만 사용할 수 있습니다." };
+  }
+  return { ok: true, email };
 }
 
 // Supabase에 저장된 Drive 참고자료를 읽어, 수업 주제/교과와 관련도가 높은 순으로
@@ -192,6 +231,13 @@ module.exports = async (req, res) => {
   }
   if (req.method !== "POST") {
     res.status(405).json({ error: "POST only" });
+    return;
+  }
+
+  // 로그인 검증: 허용된 학교 계정만 OpenAI 호출 가능 (무분별한 API 사용 방지)
+  const authResult = await verifyGoogleUser(req);
+  if (!authResult.ok) {
+    res.status(authResult.status).json({ error: authResult.error });
     return;
   }
 
