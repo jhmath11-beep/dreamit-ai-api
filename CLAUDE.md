@@ -23,7 +23,7 @@ Vercel 서버리스 함수(Node ≥18, 무빌드·무의존성). git repo: `jhma
 
 ## 배포
 - Vercel 프로젝트 `dreamit-ai-api`(`.vercel/project.json` 연동). 함수 주소 `https://dreamit-ai-api.vercel.app/api/generate`.
-- `vercel --prod`로 배포. git push 자동배포 연동 여부는 (확인 필요).
+- **`git push origin main` 하면 자동 배포된다**(2026-08-21 확인: 푸시 직후 반영). Vercel CLI는 안 깔려 있어도 됨.
 - 환경변수(값 절대 읽지 말 것): `OPENAI_API_KEY`(필수), `OPENAI_MODEL`(선택),
   `GOOGLE_CLIENT_ID`(필수·로그인), `ALLOWED_EMAIL_DOMAINS`(기본 goedu.kr), `ALLOWED_EMAILS`,
   `SUPABASE_URL`·`SUPABASE_SERVICE_KEY`(참고자료 기능), `REFERENCE_ADMIN_TOKEN`(선택).
