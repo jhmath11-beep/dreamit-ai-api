@@ -590,6 +590,97 @@
       font-size: 11px;
     }
 
+
+    /* 담당자용 학교 자료 관리 */
+    .school-pack {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border: 1px dashed #c6d3cc;
+      border-radius: 8px;
+      background: #fbfdfc;
+    }
+    .school-pack summary {
+      cursor: pointer;
+      color: #1d3329;
+      font-size: 12px;
+      font-weight: 950;
+    }
+    .school-pack .pack-sub {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+    }
+    .school-pack-inner { margin-top: 12px; }
+    .pack-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.4fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .pack-file, .pack-import {
+      display: inline-block;
+      cursor: pointer;
+      padding: 10px 14px;
+      border: 1px solid var(--green);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .pack-file { display: block; margin-bottom: 8px; text-align: center; }
+    .pack-file small { color: var(--muted); font-weight: 750; }
+    .pack-file:hover, .pack-import:hover { background: #f1f7f4; }
+    .school-pack textarea { min-height: 110px; }
+    .pack-list { margin: 12px 0; }
+    .pack-total { margin: 0 0 8px; color: var(--green); font-size: 11px; font-weight: 900; }
+    .pack-group { margin-bottom: 10px; }
+    .pack-group h5 {
+      margin: 0 0 4px;
+      color: #1d3329;
+      font-size: 11px;
+      font-weight: 950;
+    }
+    .pack-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 8px;
+      border: 1px solid #e3ebe7;
+      border-radius: 6px;
+      background: #fff;
+      margin-bottom: 4px;
+    }
+    .pack-item-title { flex: 1; color: #33443b; font-size: 11px; font-weight: 850; }
+    .pack-item-meta { color: var(--muted); font-size: 10px; font-weight: 750; }
+    .pack-del {
+      padding: 3px 8px;
+      border: 1px solid #e6c4c0;
+      border-radius: 5px;
+      background: #fff;
+      color: #b0453a;
+      font-size: 10px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+    .pack-io { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .pack-danger { border-color: #e6c4c0 !important; color: #b0453a !important; }
+    .source-mine {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed #dbe5e0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      color: var(--green);
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .source-mine span { color: #607068; font-weight: 750; }
+    @media (max-width: 640px) {
+      .pack-meta { grid-template-columns: 1fr; }
+    }
+
     .api-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1982,6 +2073,52 @@
             <span class="badge">STEP 2</span>
           </div>
           <div class="source-grid" id="sourceList"></div>
+          <!-- 담당자용 학교 자료 관리. 서버가 없어 권한을 강제할 수단은 없으므로,
+               실수로 건드리지 않도록 접어 두기만 한다(보안이 아니라 정리 목적). -->
+          <details class="school-pack" id="schoolPackBox">
+            <summary>🔧 우리 학교 자료 관리 <span class="pack-sub">담당자용 · 올린 자료는 이 브라우저에 저장됩니다</span></summary>
+            <div class="school-pack-inner">
+              <div class="pack-meta">
+                <div class="field">
+                  <label for="packSchool">학교명</label>
+                  <input id="packSchool" placeholder="예: 매탄중학교" />
+                </div>
+                <div class="field">
+                  <label for="packYear">연도</label>
+                  <input id="packYear" placeholder="예: 2026" />
+                </div>
+                <div class="field">
+                  <label for="packTarget">어느 항목에 넣을까요?</label>
+                  <select id="packTarget"></select>
+                </div>
+              </div>
+
+              <label class="pack-file">
+                <span>＋ 파일 올리기 &nbsp;<small>HWPX · DOCX · TXT (여러 개 선택 가능)</small></span>
+                <input id="packFile" type="file" accept=".hwpx,.docx,.txt,.md" multiple hidden />
+              </label>
+              <p class="hint">한글 <b>.hwp</b>와 <b>PDF</b>는 브라우저에서 못 읽습니다. 한글에서 <b>다른 이름으로 저장 → HWPX</b>로 바꿔 올리거나, 아래에 본문을 붙여넣으세요(Ctrl+A → Ctrl+C).</p>
+
+              <div class="field">
+                <label for="packTitle">자료 제목</label>
+                <input id="packTitle" placeholder="예: 2026 매탄중 국어과 진로연계 지도안" />
+              </div>
+              <div class="field">
+                <label for="packText">본문 붙여넣기</label>
+                <textarea id="packText" placeholder="한글·PDF에서 복사한 내용을 그대로 붙여넣으세요"></textarea>
+              </div>
+              <button class="mini-action" id="packAddBtn" type="button">이 항목에 자료 추가</button>
+
+              <div id="packList" class="pack-list"></div>
+
+              <div class="pack-io">
+                <button class="mini-action" id="packExportBtn" type="button">📤 자료묶음 내보내기</button>
+                <label class="pack-import">📥 자료묶음 불러오기<input id="packImportFile" type="file" accept=".json" hidden /></label>
+                <button class="mini-action pack-danger" id="packClearBtn" type="button">전체 비우기</button>
+              </div>
+              <p class="hint">내보낸 <b>.json</b> 파일을 우리 학교 선생님들께 나눠 주고 ‘불러오기’ 하면 같은 자료를 쓰게 됩니다. 학교마다 파일이 다르므로 자료가 섞이지 않습니다.</p>
+            </div>
+          </details>
           <div class="template-box">
             <div class="field">
               <label for="lessonTemplateFile">지도안 양식 한글파일</label>
@@ -7157,12 +7294,286 @@
     // 자료실 항목의 실제 본문(sources-data.js). 파일이 없으면 빈 객체로 두어 기존 동작을 유지한다.
     const sourceDocs = window.sourceDocs || {};
 
+    // ── 우리 학교 자료묶음 ────────────────────────────────────────────
+    // 담당자가 올린 학교 자료를 이 브라우저(localStorage)에 저장하고,
+    // .json 한 개로 내보내 같은 학교 선생님들이 불러 쓰는 구조.
+    // 학교마다 파일이 다르므로 학교끼리 자료가 섞이지 않는다.
+    // ponytail: 서버 저장은 나중에 '불러오기 소스'만 하나 늘리면 되도록 형식을 지금 고정해 둔다.
+    //           (pack JSON을 그대로 Blob에 올리고 받아오면 끝 — 자료 구조는 안 바뀐다)
+    const schoolPackKey = "metanDreamitSchoolPack";
+    const PACK_FORMAT = "dreamit-sources/1";
+    const UPLOAD_CHAR_LIMIT = 40000; // 문서 1개 상한. 프롬프트 길이와 localStorage 용량을 함께 보호한다.
+
+    function emptyPack() {
+      const docs = {};
+      sources.forEach((s) => { docs[s.id] = []; });
+      return { format: PACK_FORMAT, school: "", year: "", updatedAt: "", docs };
+    }
+
+    let schoolPack = emptyPack();
+
+    function packDocId() {
+      return "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    }
+
+    // 형식이 어긋난 파일을 불러와도 앱이 죽지 않도록 항상 항목별 배열을 보장한다.
+    function normalizePack(raw) {
+      const pack = emptyPack();
+      if (!raw || typeof raw !== "object") return pack;
+      pack.school = String(raw.school || "").slice(0, 60);
+      pack.year = String(raw.year || "").slice(0, 20);
+      pack.updatedAt = String(raw.updatedAt || "");
+      const docs = raw.docs || {};
+      sources.forEach((s) => {
+        const list = Array.isArray(docs[s.id]) ? docs[s.id] : [];
+        pack.docs[s.id] = list
+          .filter((d) => d && typeof d.text === "string" && d.text.trim())
+          .map((d) => ({
+            id: String(d.id || packDocId()).slice(0, 80),
+            title: String(d.title || "제목 없음").slice(0, 120),
+            text: String(d.text).slice(0, UPLOAD_CHAR_LIMIT),
+            from: String(d.from || "").slice(0, 120)
+          }));
+      });
+      return pack;
+    }
+
+    function loadSchoolPack() {
+      try {
+        const raw = localStorage.getItem(schoolPackKey);
+        schoolPack = raw ? normalizePack(JSON.parse(raw)) : emptyPack();
+      } catch (e) {
+        schoolPack = emptyPack();
+      }
+    }
+
+    function saveSchoolPack() {
+      schoolPack.updatedAt = new Date().toISOString();
+      try {
+        localStorage.setItem(schoolPackKey, JSON.stringify(schoolPack));
+        return true;
+      } catch (e) {
+        // 용량 초과. 메모리에는 남아 있으니 '내보내기'로는 건질 수 있다.
+        showToast("자료가 커서 이 브라우저에 저장하지 못했습니다. 내보내기로 백업한 뒤 오래된 자료를 지워 주세요");
+        return false;
+      }
+    }
+
+    function schoolDocCount() {
+      return sources.reduce((n, s) => n + (schoolPack.docs[s.id] || []).length, 0);
+    }
+
+    // ── 업로드 파일에서 본문 추출 ──────────────────────────────────────
+    // HWPX와 DOCX는 둘 다 zip 안의 XML이고 문단 태그 이름이 p로 같아서 한 함수로 처리된다.
+    // 이미 로드된 JSZip을 쓰므로 새 라이브러리가 필요 없다.
+    // ponytail: PDF와 구형 .hwp는 지원하지 않는다(각각 pdf.js 1MB, 전용 바이너리 파서가 필요).
+    //           붙여넣기로 충분히 대체되므로, 정말 필요해지면 그때 pdf.js를 붙인다.
+    async function xmlParagraphs(zip, pattern) {
+      const entries = Object.values(zip.files)
+        .filter((e) => !e.dir && pattern.test(e.name))
+        .sort((a, b) => a.name.localeCompare(b.name));
+      const out = [];
+      for (const entry of entries) {
+        const doc = new DOMParser().parseFromString(await entry.async("text"), "application/xml");
+        Array.from(doc.getElementsByTagName("*")).forEach((el) => {
+          if (el.localName !== "p") return;
+          const t = (el.textContent || "").replace(/\s+/g, " ").trim();
+          if (t) out.push(t);
+        });
+      }
+      return out;
+    }
+
+    async function extractUploadText(file) {
+      const name = file.name.toLowerCase();
+      if (name.endsWith(".txt") || name.endsWith(".md")) {
+        return (await file.text()).replace(/\r\n/g, "\n").trim();
+      }
+      if (!window.JSZip) throw new Error("zip-library-missing");
+      const zip = await window.JSZip.loadAsync(file);
+      let lines = [];
+      if (name.endsWith(".docx")) lines = await xmlParagraphs(zip, /^word\/document\.xml$/i);
+      else if (name.endsWith(".hwpx")) lines = await xmlParagraphs(zip, /^Contents\/section\d*\.xml$/i);
+      else throw new Error("unsupported");
+      if (!lines.length) throw new Error("empty");
+      return lines.join("\n");
+    }
+
+    function addSchoolDoc(targetId, title, text, from) {
+      const body = String(text || "").trim();
+      if (!body) { showToast("본문이 비어 있습니다"); return false; }
+      if (!schoolPack.docs[targetId]) schoolPack.docs[targetId] = [];
+      const clipped = body.length > UPLOAD_CHAR_LIMIT;
+      schoolPack.docs[targetId].push({
+        id: packDocId(),
+        title: String(title || "제목 없음").trim().slice(0, 120),
+        text: body.slice(0, UPLOAD_CHAR_LIMIT),
+        from: from || ""
+      });
+      saveSchoolPack();
+      renderSources();
+      renderPackList();
+      renderLesson();
+      if (clipped) showToast(`자료가 길어 앞 ${UPLOAD_CHAR_LIMIT.toLocaleString()}자만 저장했습니다`);
+      return true;
+    }
+
+    function removeSchoolDoc(targetId, docId) {
+      const list = schoolPack.docs[targetId] || [];
+      const idx = list.findIndex((d) => d.id === docId);
+      if (idx < 0) return;
+      const removed = list.splice(idx, 1)[0];
+      saveSchoolPack();
+      renderSources();
+      renderPackList();
+      renderLesson();
+      showToast(`'${removed.title}' 자료를 삭제했습니다`);
+    }
+
+    // ── 담당자용 자료 관리 화면 ────────────────────────────────────────
+    function renderPackList() {
+      const box = $("packList");
+      if (!box) return;
+      const total = schoolDocCount();
+      if (!total) {
+        box.innerHTML = `<p class="hint">아직 올린 학교 자료가 없습니다. 위에서 파일을 올리거나 본문을 붙여넣어 추가하세요.</p>`;
+        return;
+      }
+      box.innerHTML = `<p class="pack-total">우리 학교 자료 ${total}건 · 총 ${sources.reduce((n, s) => n + (schoolPack.docs[s.id] || []).reduce((m, d) => m + d.text.length, 0), 0).toLocaleString()}자</p>` +
+        sources.map((s) => {
+          const list = schoolPack.docs[s.id] || [];
+          if (!list.length) return "";
+          return `<div class="pack-group"><h5>${escapeHTML(s.name)}</h5>` + list.map((d) => `
+            <div class="pack-item">
+              <span class="pack-item-title">${escapeHTML(d.title)}</span>
+              <span class="pack-item-meta">${d.text.length.toLocaleString()}자${d.from ? ` · ${escapeHTML(d.from)}` : ""}</span>
+              <button type="button" class="pack-del" data-target="${s.id}" data-doc="${escapeHTMLAttr(d.id)}">삭제</button>
+            </div>`).join("") + `</div>`;
+        }).join("");
+
+      box.querySelectorAll(".pack-del").forEach((btn) => {
+        btn.addEventListener("click", () => removeSchoolDoc(btn.dataset.target, btn.dataset.doc));
+      });
+    }
+
+    function exportSchoolPack() {
+      if (!schoolDocCount()) { showToast("내보낼 학교 자료가 없습니다"); return; }
+      schoolPack.school = $("packSchool").value.trim();
+      schoolPack.year = $("packYear").value.trim();
+      schoolPack.updatedAt = new Date().toISOString();
+      saveSchoolPack();
+      const label = [schoolPack.school || "학교", schoolPack.year || new Date().getFullYear()].join("-");
+      const blob = new Blob([JSON.stringify(schoolPack, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `꿈it자료묶음_${label}.json`;
+      a.click();
+      window.setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      showToast("자료묶음을 내려받았습니다. 선생님들께 이 파일을 나눠 주세요");
+    }
+
+    async function importSchoolPack(file) {
+      if (!file) return;
+      try {
+        const raw = JSON.parse(await file.text());
+        if (raw.format !== PACK_FORMAT) throw new Error("format");
+        const incoming = normalizePack(raw);
+        const n = sources.reduce((acc, s) => acc + incoming.docs[s.id].length, 0);
+        if (!n) { showToast("파일에 자료가 없습니다"); return; }
+        const where = [incoming.school, incoming.year].filter(Boolean).join(" ");
+        if (schoolDocCount() && !window.confirm(`지금 이 브라우저에 있는 학교 자료를 지우고 ${where || "불러온 파일"}의 자료 ${n}건으로 바꿀까요?`)) return;
+        schoolPack = incoming;
+        saveSchoolPack();
+        $("packSchool").value = schoolPack.school;
+        $("packYear").value = schoolPack.year;
+        renderSources();
+        renderPackList();
+        renderLesson();
+        showToast(`${where || "자료묶음"}에서 자료 ${n}건을 불러왔습니다`);
+      } catch (e) {
+        showToast("자료묶음 파일을 읽지 못했습니다. 이 도구에서 내보낸 .json인지 확인해 주세요");
+      }
+    }
+
+    async function handlePackFiles(fileList) {
+      const files = Array.from(fileList || []);
+      if (!files.length) return;
+      const targetId = $("packTarget").value;
+      let ok = 0;
+      const failed = [];
+      for (const file of files) {
+        try {
+          const text = await extractUploadText(file);
+          const title = file.name.replace(/\.[^.]+$/, "");
+          if (addSchoolDoc(targetId, title, text, `업로드 ${file.name}`)) ok += 1;
+        } catch (e) {
+          failed.push(file.name);
+        }
+      }
+      const target = sources.find((s) => s.id === targetId);
+      if (ok) showToast(`'${target ? target.name : "자료실"}'에 ${ok}건을 추가했습니다`);
+      if (failed.length) {
+        showToast(`읽지 못한 파일: ${failed.join(", ")} — .hwp/PDF는 본문을 붙여넣어 주세요`);
+      }
+    }
+
+    function setupSchoolPackUI() {
+      if (!$("packTarget")) return;
+      loadSchoolPack();
+      $("packTarget").innerHTML = sources.map((s) => `<option value="${s.id}">${escapeHTML(s.name)}</option>`).join("");
+      $("packSchool").value = schoolPack.school;
+      $("packYear").value = schoolPack.year;
+
+      $("packFile").addEventListener("change", async (e) => {
+        await handlePackFiles(e.target.files);
+        e.target.value = "";
+      });
+      $("packAddBtn").addEventListener("click", () => {
+        const targetId = $("packTarget").value;
+        const target = sources.find((s) => s.id === targetId);
+        if (addSchoolDoc(targetId, $("packTitle").value, $("packText").value, "직접 입력")) {
+          $("packTitle").value = "";
+          $("packText").value = "";
+          showToast(`'${target ? target.name : "자료실"}'에 자료를 추가했습니다`);
+        }
+      });
+      $("packExportBtn").addEventListener("click", exportSchoolPack);
+      $("packImportFile").addEventListener("change", async (e) => {
+        await importSchoolPack(e.target.files[0]);
+        e.target.value = "";
+      });
+      $("packClearBtn").addEventListener("click", () => {
+        if (!schoolDocCount()) { showToast("비울 자료가 없습니다"); return; }
+        if (!window.confirm(`우리 학교 자료 ${schoolDocCount()}건을 모두 지울까요? 되돌릴 수 없습니다`)) return;
+        schoolPack = emptyPack();
+        saveSchoolPack();
+        renderSources();
+        renderPackList();
+        renderLesson();
+        showToast("학교 자료를 모두 비웠습니다");
+      });
+      [$("packSchool"), $("packYear")].forEach((input) => {
+        input.addEventListener("change", () => {
+          schoolPack.school = $("packSchool").value.trim();
+          schoolPack.year = $("packYear").value.trim();
+          saveSchoolPack();
+        });
+      });
+
+      renderSources();
+      renderPackList();
+    }
+
     function renderSources() {
       $("sourceList").innerHTML = sources.map((source) => {
         const doc = sourceDocs[source.id] || "";
         const detail = doc
           ? `<details class="source-doc"><summary>본문 보기 · ${doc.length.toLocaleString()}자 (체크하면 AI에 그대로 전달)</summary><pre>${escapeHTML(doc)}</pre></details>`
           : `<p class="source-doc-empty">본문 없음 — 체크해도 AI에 전달되지 않습니다</p>`;
+        const mine = schoolPack.docs[source.id] || [];
+        const mineList = mine.length
+          ? `<div class="source-mine"><b>＋ 우리 학교 자료 ${mine.length}건</b>${mine.map((d) => `<span>· ${escapeHTML(d.title)} (${d.text.length.toLocaleString()}자)</span>`).join("")}</div>`
+          : "";
         return `
         <div class="source-card">
           <label>
@@ -7171,6 +7582,7 @@
           </label>
           <p>${source.description}</p>
           ${detail}
+          ${mineList}
         </div>
       `;
       }).join("");
@@ -7529,10 +7941,19 @@ ${modelLines}
     // STEP 2에서 체크한 자료실 문서의 본문을 통째로 붙인다.
     // 4개 모두 골라도 2만 자 남짓이라 검색·요약 없이 전량 주입한다.
     function selectedSourceDocs() {
-      const picked = sources.filter((s) => state.sources.has(s.id) && sourceDocs[s.id]);
-      if (!picked.length) return "";
-      const body = picked.map((s) => `〔자료: ${s.name}〕
-${sourceDocs[s.id]}`).join(`
+      const blocks = [];
+      sources.forEach((s) => {
+        if (!state.sources.has(s.id)) return;
+        if (sourceDocs[s.id]) blocks.push(`〔자료: ${s.name}〕
+${sourceDocs[s.id]}`);
+        // 학교 자료는 기본 자료 뒤에 붙인다 — 같은 항목이면 우리 학교 것이 더 구체적이므로 뒤가 유리하다.
+        (schoolPack.docs[s.id] || []).forEach((d) => {
+          blocks.push(`〔${s.name} — 우리 학교 자료: ${d.title}〕
+${d.text}`);
+        });
+      });
+      if (!blocks.length) return "";
+      const body = blocks.join(`
 
 `);
       return `
@@ -7904,7 +8325,9 @@ ${data.promptText}
             // 실제로 무엇이 근거로 들어갔는지 교사에게 그대로 알린다.
             // docN = 자료실 문서(브라우저에서 주입), refN = 서버 Supabase 참고자료.
             const refN = Number(result.__refCount || 0);
-            const docN = sources.filter((s) => state.sources.has(s.id) && sourceDocs[s.id]).length;
+            const docN = sources.reduce((n, s) => state.sources.has(s.id)
+              ? n + (sourceDocs[s.id] ? 1 : 0) + (schoolPack.docs[s.id] || []).length
+              : n, 0);
             const used = [docN ? `자료실 ${docN}건` : "", refN ? `Drive 참고자료 ${refN}건` : ""].filter(Boolean).join(", ");
             showToast(used ? `AI가 각 칸을 채웠습니다 (${used} 반영)` : "AI가 각 칸을 채웠습니다 (참고자료 없이 생성)");
           } catch (error) {
@@ -8629,6 +9052,7 @@ ${data.promptText}
       scheduleSave();
     });
     $("lessonTemplateFile").addEventListener("change", () => loadLessonTemplate($("lessonTemplateFile").files[0]));
+    setupSchoolPackUI();
     $("promptSelect").addEventListener("change", () => applyPromptPreset($("promptSelect").value));
     $("promptEditor").addEventListener("input", () => {
       state.promptText = $("promptEditor").value;
