@@ -11,10 +11,14 @@ Vercel 서버리스 함수(Node ≥18, 무빌드·무의존성). git repo: `jhma
   본문 중 '초안' 표시 부분(수업 모형 5종, 진로교육 요소 10개 정의)은 학교 확정본으로 교체 필요.
 - **우리 학교 자료묶음** — 학교마다·해마다 다른 자료를 담당자가 직접 올리는 경로. 서버 없음.
   index.html의 `schoolPack`(localStorage `metanDreamitSchoolPack`)에 저장하고, STEP 2 '🔧 우리 학교 자료 관리'에서 관리한다.
-  업로드는 HWPX·DOCX·TXT(이미 로드된 JSZip으로 zip 안 XML의 `p` 태그를 읽음 — `xmlParagraphs()`). 구형 .hwp와 PDF는 미지원이라 붙여넣기로 받는다.
+  업로드는 PDF·HWPX·DOCX·TXT. HWPX/DOCX는 이미 로드된 JSZip으로 zip 안 XML의 `p` 태그를 읽고(`xmlParagraphs()`),
+  PDF는 pdf.js 3.11.174를 **처음 PDF를 올리는 순간에만** CDN에서 지연 로딩한다(`loadPdfLib()`/`extractPdfText()`, 1.4MB라 평소엔 안 받음).
+  스캔본 PDF(텍스트 레이어 없음)와 구형 .hwp는 못 읽으므로 붙여넣기로 받는다. 205쪽 스캔본도 6초 안에 실패 안내가 뜬다.
   `📤 내보내기`로 `.json` 한 개(`format: "dreamit-sources/1"`)를 만들어 같은 학교 교사들이 `📥 불러오기` 하는 방식이라 학교끼리 자료가 안 섞인다.
   나중에 서버(Vercel Blob 등)로 갈 때도 이 pack JSON을 그대로 올리고 받으면 되므로 자료 구조는 안 바뀐다.
-  문서 1개 상한 `UPLOAD_CHAR_LIMIT`(4만 자). 주입은 `selectedSourceDocs()`가 기본 자료 뒤에 학교 자료를 붙인다.
+  문서 1개 상한 `UPLOAD_CHAR_LIMIT`(4만 자), **한 번의 생성에 실을 총량 상한 `PROMPT_DOC_BUDGET`(6만 자)**.
+  총량을 넘으면 뒤쪽 자료부터 잘리고, 프롬프트에 잘림 사실을 적고 카드 아래 `#sourceBudget`에 빨간 경고로 표시한다(컨텍스트 초과·비용 폭증 방지).
+  주입 목록은 `selectedDocList()`가 만들고(기본 자료 뒤에 학교 자료), `selectedSourceDocs()`가 예산 안에서 잘라 붙인다.
 - `api/generate.js` — 핵심. `POST /api/generate` {system, user} → 연구학교 양식 각 칸 JSON.
   Google ID 토큰 로그인 검증 → (선택) Supabase 참고자료 주입 → OpenAI 호출.
 - `api/reference.js` — `GET/POST/DELETE /api/reference`. Drive 문서 본문을 Supabase `reference_docs`에 저장/조회.
