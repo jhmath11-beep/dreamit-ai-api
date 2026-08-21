@@ -563,6 +563,33 @@
       font-weight: 750;
     }
 
+    /* 자료실 본문 미리보기 — 교사가 AI에 실제로 무엇이 전달되는지 확인용 */
+    .source-doc { margin-top: 8px; }
+    .source-doc summary {
+      cursor: pointer;
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 850;
+    }
+    .source-doc pre {
+      margin: 8px 0 0;
+      max-height: 260px;
+      overflow: auto;
+      padding: 10px;
+      border-radius: 6px;
+      background: #f5f8f6;
+      color: #33443b;
+      font-size: 11px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .source-doc-empty {
+      margin-top: 8px !important;
+      color: #b0453a !important;
+      font-size: 11px;
+    }
+
     .api-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -2267,6 +2294,9 @@
       });
     })();
   </script>
+
+  <!-- 자료실(STEP 2) 4개 항목의 실제 본문. 체크한 자료는 AI 요청문에 그대로 주입된다. -->
+  <script src="sources-data.js"></script>
 
   <script>
     const models = [
@@ -7124,16 +7154,26 @@
       });
     }
 
+    // 자료실 항목의 실제 본문(sources-data.js). 파일이 없으면 빈 객체로 두어 기존 동작을 유지한다.
+    const sourceDocs = window.sourceDocs || {};
+
     function renderSources() {
-      $("sourceList").innerHTML = sources.map((source) => `
+      $("sourceList").innerHTML = sources.map((source) => {
+        const doc = sourceDocs[source.id] || "";
+        const detail = doc
+          ? `<details class="source-doc"><summary>본문 보기 · ${doc.length.toLocaleString()}자 (체크하면 AI에 그대로 전달)</summary><pre>${escapeHTML(doc)}</pre></details>`
+          : `<p class="source-doc-empty">본문 없음 — 체크해도 AI에 전달되지 않습니다</p>`;
+        return `
         <div class="source-card">
           <label>
             <input type="checkbox" value="${source.id}" ${state.sources.has(source.id) ? "checked" : ""} />
             ${source.name}
           </label>
           <p>${source.description}</p>
+          ${detail}
         </div>
-      `).join("");
+      `;
+      }).join("");
 
       document.querySelectorAll("#sourceList input").forEach((input) => {
         input.addEventListener("change", () => {
@@ -7483,7 +7523,23 @@ ${modelLines}
 2) 진로와 직업 연계 영역(연구학교 양식): ${careerLinks.join(" / ")}
 3) 진로교육 요소(역량): ${careerElements.join(", ")}
 ※ 진로 연계는 직업명 나열이 아니라 학생의 역할 경험·역량 발견·삶과의 연결로 표현합니다.
-※ 꿈it(잇)다 시스템 연계 방법은 교사가 입력한 값을 우선 반영하고, 어느 수업 단계에서 어떻게 쓰는지 구체화하세요.`;
+※ 꿈it(잇)다 시스템 연계 방법은 교사가 입력한 값을 우선 반영하고, 어느 수업 단계에서 어떻게 쓰는지 구체화하세요.${selectedSourceDocs()}`;
+    }
+
+    // STEP 2에서 체크한 자료실 문서의 본문을 통째로 붙인다.
+    // 4개 모두 골라도 2만 자 남짓이라 검색·요약 없이 전량 주입한다.
+    function selectedSourceDocs() {
+      const picked = sources.filter((s) => state.sources.has(s.id) && sourceDocs[s.id]);
+      if (!picked.length) return "";
+      const body = picked.map((s) => `〔자료: ${s.name}〕
+${sourceDocs[s.id]}`).join(`
+
+`);
+      return `
+
+[자료실 문서 — 교사가 STEP 2에서 선택한 학교 자료입니다. 이 내용과 용어를 근거로 작성하고, 자료에 없는 사실은 지어내지 마세요. 문서에 '초안'으로 표시된 부분은 확정된 근거가 아니므로 단정적으로 인용하지 마세요.]
+
+${body}`;
     }
 
     function buildAIPrompt() {
@@ -7845,8 +7901,12 @@ ${data.promptText}
           try {
             const result = await callAI();
             applyAIResult(result, "OpenAI (서버 연동)");
+            // 실제로 무엇이 근거로 들어갔는지 교사에게 그대로 알린다.
+            // docN = 자료실 문서(브라우저에서 주입), refN = 서버 Supabase 참고자료.
             const refN = Number(result.__refCount || 0);
-            showToast(refN > 0 ? `AI가 각 칸을 채웠습니다 (참고자료 ${refN}건 반영)` : "AI가 각 칸을 채웠습니다");
+            const docN = sources.filter((s) => state.sources.has(s.id) && sourceDocs[s.id]).length;
+            const used = [docN ? `자료실 ${docN}건` : "", refN ? `Drive 참고자료 ${refN}건` : ""].filter(Boolean).join(", ");
+            showToast(used ? `AI가 각 칸을 채웠습니다 (${used} 반영)` : "AI가 각 칸을 채웠습니다 (참고자료 없이 생성)");
           } catch (error) {
             applyAIResult(simulateAI(), "시뮬레이션 (AI 호출 실패 시 자동 전환)");
             const reason = String((error && error.message) || error).slice(0, 140);
