@@ -1838,6 +1838,41 @@
       .tab { flex: 0 0 auto; min-width: 132px; }
       .topbar-inner { flex-wrap: wrap; gap: 10px; }
       .topbar-actions { width: 100%; justify-content: space-between; }
+
+      /* 생성된 지도안 미리보기: 폰에서 860px 고정폭이면 화면 밖으로 잘려 못 읽는다.
+         인쇄용 스타일이 이미 쓰는 방식(min-width 해제 + 글자 축소)을 화면에도 그대로 적용해
+         가로로 밀지 않고 세로 스크롤만으로 읽히게 한다. */
+      .form-table,
+      .process-table {
+        min-width: 0;
+        width: 100%;
+        font-size: 11px;
+      }
+      /* 개요 표: 값 칸이 한 글자씩 세로로 눌리지 않도록 내용에 맞춰 잡게 둔다. */
+      .form-table { table-layout: auto; }
+      /* 과정안 표: 자동 배분이면 정작 본문(교수·학습 과정)이 가장 좁아진다.
+         단계·유의점 칸을 묶고 남는 폭을 전부 본문에 준다. */
+      .process-table { table-layout: fixed; }
+      .process-table th:nth-child(1),
+      .process-table .stage { width: 52px; }
+      .process-table th:nth-child(3),
+      .process-table .note { width: 84px; }
+      .form-table th,
+      .form-table td,
+      .process-table th,
+      .process-table td {
+        padding: 6px 5px;
+        line-height: 1.5;
+        word-break: break-word;
+      }
+      /* 항목명 칸이 본문을 밀어내지 않을 만큼만 잡고, 나머지는 내용에 맡긴다. */
+      .form-table th { width: auto; min-width: 52px; white-space: nowrap; }
+      .form-table .subhead { width: auto; min-width: 40px; }
+      .lesson-body { padding: 14px 12px 18px; }
+      .lesson-head { padding: 14px; }
+      .lesson-head h3 { font-size: 18px; }
+      /* 개요 3분할은 폰에서 한 줄씩 쌓는다. */
+      .summary-grid { grid-template-columns: 1fr; }
     }
 
     /* ===== 히어로: 흰 바탕 + 시작 버튼만 비비드 그라데이션(원래 히어로 색) ===== */
@@ -6569,7 +6604,8 @@
       careers: new Set(["협력적 의사소통", "창업가 정신", "진로 설계"]),
       careerLinks: new Set(["진로와 나의 이해", "진로 설계와 실천"]),
       ai: null,
-      achievementId: "정보-9정01-01-001",
+      // 기본 주제(앱 아이디어 설계)와 맞는 성취기준. 데모에서 주제-성취기준이 어긋나 보이지 않게 한다.
+      achievementId: "정보-9정03-08-016",
       templateName: "매탄중 기본 양식",
       templateText: "",
       promptId: "metan-core",
@@ -8953,11 +8989,35 @@ ${data.promptText}
       window.setTimeout(() => toast.classList.remove("show"), 1600);
     }
 
+    // 지도안 일시 기본값. 저장된 입력이 없으면 오늘(주말이면 다음 월요일)로 맞춘다.
+    // 데모·보고회에서 지난 날짜가 그대로 찍혀 나오는 것을 막는다.
+    const DEFAULT_LESSON_DATE = "2026-05-11";
+    const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+
+    function nextSchoolDay() {
+      const d = new Date();
+      if (d.getDay() === 6) d.setDate(d.getDate() + 2);  // 토 → 월
+      if (d.getDay() === 0) d.setDate(d.getDate() + 1);  // 일 → 월
+      return d;
+    }
+
+    function applyTodayLessonDate() {
+      const dateEl = $("lessonDate");
+      if (!dateEl) return;
+      const d = nextSchoolDay();
+      const pad = (n) => String(n).padStart(2, "0");
+      dateEl.value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      const wdEl = $("lessonWeekday");
+      // 요일 선택지는 월~금만 있으므로 해당 값이 있을 때만 맞춘다.
+      if (wdEl && [...wdEl.options].some((o) => o.value === WEEKDAYS[d.getDay()])) {
+        wdEl.value = WEEKDAYS[d.getDay()];
+      }
+    }
+
     function resetExample() {
       $("subject").value = "정보";
       $("className").value = "3반";
-      $("lessonDate").value = "2026-05-11";
-      $("lessonWeekday").value = "월";
+      applyTodayLessonDate();
       $("lessonPeriodSelect").value = "3교시";
       $("teacher").value = "김준홍";
       $("grade").value = "2학년";
@@ -9167,6 +9227,8 @@ ${data.promptText}
     loadPromptPresets();
     renderSubjectOptions();
     loadDraft();
+    // 이전 입력이 없거나 예시 날짜 그대로면 오늘로 바꾼다.
+    if (!$("lessonDate").value || $("lessonDate").value === DEFAULT_LESSON_DATE) applyTodayLessonDate();
     if (state.templateText) {
       updateTemplateStatus(`${state.templateName} 양식 내용이 저장되어 있습니다.`);
     }
