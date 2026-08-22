@@ -25,6 +25,8 @@ Vercel 서버리스 함수(Node ≥18, 무빌드·무의존성). git repo: `jhma
 - `scripts/ingest.py` — 로컬 실행 RAG 인제스트(공개 Drive PDF/DOCX → 청크 → 임베딩 → pgvector `reference_chunks`). `scripts/README.md` 참고.
 - `supabase-schema.sql`(붙여넣기 테이블), `supabase-rag.sql`(pgvector + `match_reference_chunks` 함수).
 - `guide/dreamit-guide.pdf` — 도구 사용 안내서(제목 옆 도움말 버튼의 PDF 모달에서 사용).
+- `보고회-QR.html` — 연구학교 보고회 체험용 A4 인쇄 안내문(QR 벡터 인라인, 접속 주소·3단계 사용법·@goedu.kr 로그인 경고).
+  주소가 바뀌면 QR을 다시 만들어야 한다(python `qrcode`로 매트릭스를 뽑아 SVG rect로 인라인).
 
 ## AI 모델
 - 실제 호출은 **OpenAI gpt-4o-mini**(사용자 OpenAI 키). Claude 아님.
