@@ -40,10 +40,12 @@ Vercel 서버리스 함수(Node ≥18, 무빌드·무의존성). git repo: `jhma
   `GOOGLE_CLIENT_ID`(필수·로그인), `ALLOWED_EMAIL_DOMAINS`(기본 goedu.kr), `ALLOWED_EMAILS`,
   `SUPABASE_URL`·`SUPABASE_SERVICE_KEY`(참고자료 기능), `REFERENCE_ADMIN_TOKEN`(선택).
 - Supabase 미설정 시 참고자료 주입은 조용히 생략되고 기본 동작 유지. CORS는 `*` 전체 허용.
-- **(2026-08-21 확인) 기존 Supabase 프로젝트는 삭제됨** — `opnsbprcskfwilqjtfgz.supabase.co` DNS NXDOMAIN,
-  `/api/reference`는 `{"error":"fetch failed"}`. 즉 Drive RAG(2271청크) 주입은 현재 0건이고 조용히 생략된다.
-  지도안 근거는 `sources-data.js`(자료실 4개)가 담당한다. RAG를 되살리려면 Supabase 새 프로젝트 →
-  `supabase-schema.sql`+`supabase-rag.sql` Run → Vercel 환경변수 재설정 → `python scripts/ingest.py --reset`.
+- **(2026-09-11 정정) Supabase 프로젝트 `dream`(`opnsbprcskfwilqjtfgz`)은 삭제된 게 아니라 무료 티어 자동 일시정지였다가 복구됨.**
+  2026-08-21엔 DNS NXDOMAIN·`/api/reference`가 `{"error":"fetch failed"}`였지만 지금은 정상 해석되고 `/api/reference`가 `[]`를 돌려준다.
+  Drive RAG(2271청크)가 살아 있는지는 미확인(로그인 후 `/api/generate` 응답의 `X-Reference-Count`로 확인).
+  지도안 근거는 어차피 `sources-data.js`(자료실 4개)가 담당하므로 Supabase가 멈춰도 생성은 그대로 된다.
+  2026-09-11 Supabase에서 이 프로젝트 'Disk IO Budget 소진' 경고 메일 옴 — 일시정지 복구 직후의 인덱스·통계 재구성 탓일 가능성이 크고, 서비스 영향 없음. 안 쓸 거면 대시보드에서 다시 Pause.
+  RAG를 처음부터 다시 만들려면 `supabase-schema.sql`+`supabase-rag.sql` Run → Vercel 환경변수 재설정 → `python scripts/ingest.py --reset`.
 
 ## 주의
 - service_role 키·OpenAI 키는 서버 전용. 브라우저 노출 금지. `scripts/.env`는 커밋 금지(.gitignore).
