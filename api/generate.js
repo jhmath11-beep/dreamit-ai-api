@@ -129,7 +129,8 @@ async function loadReferenceBlock(userText) {
   try {
     const base = `${url.replace(/\/$/, "")}/rest/v1/reference_docs`;
     const r = await fetch(`${base}?select=title,tags,content&order=created_at.asc`, {
-      headers: { apikey: key, Authorization: `Bearer ${key}` }
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+      signal: AbortSignal.timeout(5000) // ponytail: Supabase가 응답 불능이어도 생성은 5초만 기다리고 넘어감
     });
     if (!r.ok) return { text: "", count: 0 };
     const docs = await r.json();
@@ -195,7 +196,8 @@ async function ragReferenceBlock(userText, apiKey) {
     const rr = await fetch(base, {
       method: "POST",
       headers: { apikey: key, Authorization: `Bearer ${key}`, "content-type": "application/json" },
-      body: JSON.stringify({ query_embedding: embedding, match_count: 12 })
+      body: JSON.stringify({ query_embedding: embedding, match_count: 12 }),
+      signal: AbortSignal.timeout(5000)
     });
     if (!rr.ok) return null;
     const rows = await rr.json();
