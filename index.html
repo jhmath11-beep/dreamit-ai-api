@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>꿈it(잇)다 진로 연계 교과 수업 설계 지도안 작성 도구</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
@@ -1923,6 +1924,433 @@
     .pdf-newtab:hover { background: var(--mint); }
     .media-note { margin: 10px 2px 0; font-size: 12px; color: var(--muted); }
   </style>
+  <style id="theme-stage-2026">
+    /* ===== 2026-10 '스테이지' 리디자인: 다크 히어로 + 웜 페이퍼 + 스파크(코랄) 단일 포인트 + 모션 =====
+       앞 블록(인디고 테마)은 그대로 두고 여기서 덮어쓴다. 이 블록만 지우면 직전 디자인으로 돌아간다.
+       지도안 문서(.lesson 내부)·Word 출력 색은 건드리지 않는다. */
+    :root {
+      --ink: #12141C;
+      --muted: #6E717C;
+      --paper: #F4F2EC;
+      --stage: #0D0F16;
+      --spark: #FF5A2C;
+      --spark-2: #FF9A1F;
+      --spark-soft: #FFF0E9;
+      --ok: #12B886;
+      --ok-soft: #E7F8F1;
+      --green: var(--spark);
+      --green-2: #F3C7B6;
+      --mint: var(--spark-soft);
+      --lime: var(--ink);
+      --primary: var(--spark);
+      --primary-deep: var(--ink);
+      --done: var(--ok);
+      --line-soft: rgba(18,20,28,.08);
+      --shadow: 0 1px 2px rgba(18,20,28,.04), 0 12px 32px rgba(18,20,28,.06);
+      --ease: cubic-bezier(.2,.8,.2,1);
+      --spring: cubic-bezier(.34,1.56,.64,1);
+    }
+    body {
+      font-family: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      background: var(--paper);
+      letter-spacing: -.01em; word-break: keep-all;
+    }
+    h1, h2, h3, label, .badge, .tab, .section-title h2, .section-title h3 { font-family: inherit; }
+    .lesson { font-family: "Noto Sans KR", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif; letter-spacing: 0; }
+
+    /* ── 글자 줄이기: 반복·설명성 문구는 숨기고(기능 요소 아님), 긴 안내는 한 줄로 접는다 ── */
+    .brand p, .mission-tags, .final-note, .reveal-sub, .section-title .badge,
+    .tab .opt, .tab .final-badge, .section-title h3 > span[style] { display: none !important; }
+    .hint, .prompt-note, #templateStatus {
+      position: relative; cursor: pointer; margin: 10px 0 0;
+      padding: 10px 38px 10px 36px !important; border-radius: 12px !important;
+      background: rgba(18,20,28,.035) !important; border: 1px solid transparent !important;
+      color: var(--muted) !important; font-size: 12.5px !important; line-height: 1.6 !important; font-weight: 500 !important;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      transition: background .2s ease, border-color .2s ease;
+    }
+    .hint::before, .prompt-note::before, #templateStatus::before {
+      content: "i"; position: absolute; left: 11px; top: 10px; width: 17px; height: 17px; border-radius: 50%;
+      display: grid; place-items: center; font: 800 10px/1 Georgia, serif; font-style: italic;
+      background: var(--ink); color: #fff;
+    }
+    .hint::after, .prompt-note::after, #templateStatus::after {
+      content: "+"; position: absolute; right: 13px; top: 8px; font-size: 17px; font-weight: 400; color: var(--muted);
+      transition: transform .3s var(--ease);
+    }
+    .hint.open, .prompt-note.open, #templateStatus.open { white-space: normal; background: #fff !important; border-color: var(--line-soft) !important; }
+    .hint.open::after, .prompt-note.open::after, #templateStatus.open::after { transform: rotate(45deg); }
+    .hint:hover, .prompt-note:hover, #templateStatus:hover { background: rgba(18,20,28,.06) !important; }
+    .hint b { color: var(--ink); }
+
+    /* ── 상단바 ── */
+    .topbar { background: rgba(244,242,236,.78) !important; border-bottom: 1px solid var(--line-soft); backdrop-filter: saturate(1.4) blur(16px); }
+    .topbar-inner { padding: 12px 24px; }
+    .topbar h1 { font-size: 16px; font-weight: 800; letter-spacing: -.03em; color: var(--ink); }
+    .brand-mark {
+      position: relative; width: 38px; height: 38px; border-radius: 12px;
+      background: var(--ink) !important; box-shadow: none !important; font-weight: 900; letter-spacing: -.04em;
+    }
+    .brand-mark::after {
+      content: ""; position: absolute; right: -3px; top: -3px; width: 11px; height: 11px; border-radius: 50%;
+      background: var(--spark); border: 2px solid var(--paper); animation: sparkPing 2.4s var(--ease) infinite;
+    }
+    .help-launch {
+      background: transparent !important; color: var(--ink) !important; box-shadow: none !important;
+      border: 1.5px solid var(--ink) !important; padding: 6px 14px !important; font-weight: 700 !important;
+      transition: background .2s ease, color .2s ease, transform .2s var(--spring) !important;
+    }
+    .help-launch:hover { background: var(--ink) !important; color: #fff !important; transform: translateY(-1px) rotate(-1deg); }
+    .topbar-btn { border: 0 !important; background: transparent !important; color: var(--ink) !important; font-weight: 700 !important; border-radius: 999px !important; padding: 8px 14px !important; }
+    .topbar-btn:hover { background: rgba(18,20,28,.06) !important; transform: none !important; }
+    .status { background: #fff !important; border: 1px solid var(--line-soft) !important; color: var(--ink) !important; border-radius: 999px !important; font-weight: 700 !important; }
+    .status .dot { background: var(--ok) !important; border: 0 !important; box-shadow: 0 0 0 0 rgba(18,184,134,.5) !important; animation: okPulse 2s ease-out infinite !important; }
+
+    /* ── 히어로: 다크 스테이지 + 오로라 + 커서 스포트라이트 ── */
+    .workspace { gap: 20px; }
+    .panel.hero {
+      --mx: 70%; --my: 30%;
+      position: relative; isolation: isolate; overflow: hidden;
+      min-height: 440px; padding: 56px 52px !important; border: 0 !important; border-radius: 28px !important;
+      grid-template-columns: minmax(0, 1.25fr) minmax(300px, .75fr) !important; gap: 40px !important; align-items: center;
+      background: radial-gradient(520px circle at var(--mx) var(--my), rgba(255,122,60,.16), transparent 60%), var(--stage) !important;
+      box-shadow: 0 30px 80px rgba(13,15,22,.28) !important; backdrop-filter: none !important;
+      animation: rise .9s var(--ease) both;
+    }
+    .hero::before {
+      content: ""; position: absolute; z-index: -1; width: 720px; height: 720px; right: -260px; top: -320px; border-radius: 50%;
+      background: conic-gradient(from 0deg, #FF5A2C, #FF9A1F, #FFD166, #2EC4B6, #3A86FF, #FF5A2C);
+      filter: blur(90px); opacity: .42; animation: aurora 22s linear infinite;
+    }
+    .hero::after {
+      content: ""; position: absolute; inset: 0; z-index: -1; width: auto; height: auto; border-radius: 0;
+      background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+      background-size: 44px 44px;
+      -webkit-mask-image: radial-gradient(ellipse at 30% 50%, #000 20%, transparent 75%); mask-image: radial-gradient(ellipse at 30% 50%, #000 20%, transparent 75%);
+    }
+    .hero-kicker {
+      background: rgba(255,255,255,.07) !important; color: rgba(255,255,255,.82) !important; border: 1px solid rgba(255,255,255,.14) !important;
+      border-radius: 999px !important; padding: 7px 14px !important; font-weight: 600 !important; letter-spacing: .02em;
+      animation: rise .7s .1s var(--ease) both;
+    }
+    .hero-kicker::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--spark); box-shadow: 0 0 12px var(--spark); }
+    .hero h2 {
+      margin: 22px 0 18px !important; color: #fff !important; font-weight: 800; letter-spacing: -.045em;
+      font-size: clamp(36px, 5.2vw, 68px) !important; line-height: 1.08 !important;
+    }
+    .hero h2 .w { display: inline-block; animation: wordIn 1s var(--ease) both; }
+    .hero h2 .w:nth-child(2) { animation-delay: .14s; }
+    .hero h2 em {
+      font-style: normal; background: linear-gradient(100deg, var(--spark), var(--spark-2), #FFD166, var(--spark));
+      background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+      animation: sheen 6s ease-in-out infinite;
+    }
+    .hero > div > p { color: rgba(255,255,255,.62) !important; font-size: 16px !important; font-weight: 500 !important; max-width: 520px; animation: rise .8s .3s var(--ease) both; }
+    .hero-cta { margin-top: 32px !important; animation: rise .8s .42s var(--ease) both; }
+    .hero-btn-primary {
+      position: relative; overflow: hidden; padding: 17px 30px !important; border-radius: 999px !important; font-size: 16px !important; font-weight: 800 !important;
+      background: var(--spark) !important; box-shadow: 0 14px 40px rgba(255,90,44,.45) !important;
+      transition: transform .35s var(--spring), box-shadow .3s ease !important;
+    }
+    .hero-btn-primary::after {
+      content: "→"; display: inline-block; margin-left: 4px; transition: transform .35s var(--spring);
+    }
+    .hero-btn-primary::before {
+      content: ""; position: absolute; inset: 0; transform: translateX(-120%);
+      background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.45) 50%, transparent 70%);
+      animation: shine 3.6s 1.4s ease-in-out infinite;
+    }
+    .hero-btn-primary:hover { transform: translateY(-3px) scale(1.03) !important; box-shadow: 0 20px 50px rgba(255,90,44,.55) !important; filter: none !important; }
+    .hero-btn-primary:hover::after { transform: translateX(5px); }
+
+    /* 우측 파이프라인: 빛이 위→아래로 흐르는 타임라인 */
+    .pipeline { position: relative; gap: 6px !important; }
+    .pipeline::before {
+      content: ""; position: absolute; left: 30px; top: 30px; bottom: 30px; width: 2px;
+      background: rgba(255,255,255,.12); border-radius: 2px;
+    }
+    .pipeline::after {
+      content: ""; position: absolute; left: 27px; top: 30px; width: 8px; height: 8px; border-radius: 50%;
+      background: var(--spark); box-shadow: 0 0 0 4px rgba(255,90,44,.2), 0 0 24px 4px rgba(255,90,44,.7);
+      animation: travel 5s var(--ease) infinite;
+    }
+    .pipe-step {
+      position: relative; z-index: 1; padding: 12px 14px !important; gap: 14px !important;
+      background: rgba(255,255,255,.04) !important; border: 1px solid rgba(255,255,255,.08) !important; border-radius: 16px !important;
+      box-shadow: none !important; backdrop-filter: blur(6px);
+      animation: slideIn .7s var(--ease) both; transition: background .25s ease, transform .3s var(--ease), border-color .25s ease;
+    }
+    .pipe-step:nth-child(1) { animation-delay: .35s; } .pipe-step:nth-child(2) { animation-delay: .45s; }
+    .pipe-step:nth-child(3) { animation-delay: .55s; } .pipe-step:nth-child(4) { animation-delay: .65s; }
+    .pipe-step:nth-child(5) { animation-delay: .75s; }
+    .pipe-step:hover { background: rgba(255,255,255,.09) !important; border-color: rgba(255,255,255,.18) !important; transform: translateX(-4px); }
+    .pipe-step b {
+      width: 32px !important; height: 32px !important; border-radius: 50% !important; font-size: 13px !important; font-weight: 800;
+      background: var(--stage) !important; color: #fff !important; border: 1.5px solid rgba(255,255,255,.28);
+      animation: nodeLit 5s var(--ease) infinite;
+    }
+    .pipe-step:nth-child(2) b { animation-delay: 1s; } .pipe-step:nth-child(3) b { animation-delay: 2s; }
+    .pipe-step:nth-child(4) b { animation-delay: 3s; } .pipe-step:nth-child(5) b { animation-delay: 4s; }
+    .pipe-step span { color: rgba(255,255,255,.86) !important; font-size: 14px !important; font-weight: 600 !important; }
+
+    /* ── 단계 탭: 진행 바가 차오르는 스테퍼 ── */
+    .tabnav {
+      --p: 0;
+      position: sticky; top: 64px; z-index: 9; gap: 4px !important; margin: 0 !important; padding: 6px !important;
+      background: rgba(255,255,255,.82); backdrop-filter: saturate(1.4) blur(16px);
+      border: 1px solid var(--line-soft); border-radius: 20px; box-shadow: var(--shadow);
+      animation: rise .6s var(--ease) both;
+    }
+    .tabnav::after {
+      content: ""; position: absolute; left: 18px; right: 18px; bottom: 0; height: 3px; border-radius: 3px;
+      background: linear-gradient(90deg, var(--ok), #7BE0B8) left / calc(var(--p) * 100%) 100% no-repeat, rgba(18,20,28,.06);
+      transition: background-size .8s var(--ease);
+    }
+    .tabnav-divider { display: none; }
+    .tab {
+      position: relative; min-width: 0 !important; padding: 10px 12px !important; gap: 9px !important;
+      background: transparent !important; border: 0 !important; border-radius: 14px !important; box-shadow: none !important;
+      color: var(--muted) !important; font-weight: 700 !important;
+      transition: background .3s var(--ease), color .2s ease, transform .3s var(--spring) !important;
+    }
+    .tab:hover { background: rgba(18,20,28,.045) !important; color: var(--ink) !important; transform: none !important; }
+    .tab:active { transform: scale(.97) !important; }
+    .tab .tab-no {
+      width: 28px !important; height: 28px !important; border-radius: 50% !important; font-size: 11.5px !important; font-weight: 800 !important;
+      background: transparent !important; color: var(--muted) !important; border: 1.5px solid rgba(18,20,28,.14) !important;
+      transition: all .35s var(--spring);
+    }
+    .tab .tab-name { flex: 0 1 auto !important; font-weight: 700 !important; font-size: 13.5px !important; }
+    #tabnav { scroll-margin-top: 76px; }
+    #previewReveal { scroll-margin-top: 150px; }
+    .tabwrap { scroll-margin-top: 150px; }
+    .tab .req { font-size: 0 !important; width: 6px; height: 6px; padding: 0 !important; border-radius: 50%; background: var(--spark) !important; flex: 0 0 auto; }
+    .tab .check { display: none !important; }
+    .tab.active { background: var(--ink) !important; color: #fff !important; box-shadow: 0 8px 22px rgba(18,20,28,.22) !important; }
+    .tab.active .tab-no { border-color: rgba(255,255,255,.3) !important; color: #fff !important; }
+    .tab.active .req { background: var(--spark) !important; box-shadow: 0 0 8px var(--spark); }
+    .tab.done:not(.active) { color: var(--ink) !important; }
+    .tab.done .tab-no { background: var(--ok) !important; border-color: var(--ok) !important; color: transparent !important; position: relative; }
+    .tab.done .tab-no::after { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-size: 13px; animation: pop .45s var(--spring) both; }
+    .tab.done .req { display: none; }
+    .tab.final:not(.active) .tab-name { color: var(--spark); }
+    .tab.final { border: 0 !important; }
+    .tab.final:not(.active):not(.done) { background: var(--spark-soft) !important; }
+
+    /* ── 패널 전환 모션 ── */
+    .tabpanel.show { animation: panelIn .55s var(--ease) both; }
+    .tabpanel.show > .section { animation: rise .6s var(--ease) both; }
+    .tabpanel.show > .section:nth-child(2) { animation-delay: .07s; }
+    .tabpanel.show > .section:nth-child(3) { animation-delay: .14s; }
+    .tabwrap { margin-top: 4px; }
+
+    /* ── 카드 ── */
+    .panel, .section { background: #fff !important; backdrop-filter: none !important; border: 1px solid var(--line-soft) !important; border-radius: 24px !important; box-shadow: var(--shadow) !important; }
+    .section { padding: 30px 32px !important; }
+    .section-title { margin-bottom: 20px !important; }
+    .section-title h2, .section-title h3 { font-size: 21px !important; font-weight: 800 !important; letter-spacing: -.035em; color: var(--ink) !important; }
+    .section-title .ic {
+      width: 38px !important; height: 38px !important; border-radius: 12px !important; margin-right: 12px !important; font-size: 18px !important;
+      background: var(--paper) !important; border: 0 !important;
+    }
+
+    /* 입력 */
+    label { color: var(--ink) !important; font-size: 12.5px !important; font-weight: 700 !important; letter-spacing: -.01em; }
+    input, select, textarea {
+      background: #F8F7F3 !important; border: 1.5px solid transparent !important; border-radius: 14px !important; font-size: 14.5px;
+      transition: border-color .2s ease, background .2s ease, box-shadow .25s var(--ease) !important;
+    }
+    input, select { height: 48px !important; }
+    .action-section .field { grid-template-rows: 18px 48px !important; }
+    .action-section .field:has(#standard) { grid-template-rows: 18px auto !important; }
+    input:hover, select:hover, textarea:hover { background: #F2F0EA !important; }
+    input:focus, select:focus, textarea:focus { background: #fff !important; border-color: var(--ink) !important; box-shadow: 0 0 0 4px rgba(18,20,28,.07) !important; }
+    input[type="file"] { padding: 10px 12px !important; }
+
+    /* 수업 유형 카드: 선택 시 잉크로 반전 */
+    .model-list { gap: 10px !important; }
+    .model-option {
+      position: relative; cursor: pointer; padding: 18px 16px !important; min-height: 128px !important; align-content: start;
+      border: 1.5px solid var(--line-soft) !important; border-radius: 18px !important; background: #fff !important;
+      transition: transform .35s var(--spring), background .3s var(--ease), border-color .2s ease, box-shadow .3s ease !important;
+    }
+    .model-option:hover { transform: translateY(-4px) !important; border-color: rgba(18,20,28,.2) !important; box-shadow: 0 16px 30px rgba(18,20,28,.08) !important; }
+    .model-option input { appearance: none; -webkit-appearance: none; width: 22px !important; height: 22px !important; border-radius: 50% !important; border: 1.5px solid rgba(18,20,28,.2) !important; background: #fff !important; padding: 0 !important; margin: 0; transition: all .3s var(--spring) !important; }
+    .model-option strong { font-size: 15px !important; font-weight: 800; letter-spacing: -.03em; color: var(--ink); margin-bottom: 6px !important; transition: color .2s; }
+    .model-option span span { font-size: 12px !important; line-height: 1.55 !important; transition: color .2s; }
+    .model-option:has(input:checked) { background: var(--ink) !important; border-color: var(--ink) !important; transform: translateY(-4px); box-shadow: 0 18px 36px rgba(18,20,28,.22) !important; }
+    .model-option:has(input:checked) strong { color: #fff; }
+    .model-option:has(input:checked) span span { color: rgba(255,255,255,.66) !important; }
+    .model-option input:checked { border: 6px solid var(--spark) !important; background: #fff !important; }
+
+    /* 칩: 선택 시 채워지며 톡 튀어오름 */
+    .chips { gap: 8px !important; }
+    .chip {
+      cursor: pointer; padding: 10px 15px 10px 12px !important; gap: 8px !important; border-radius: 999px !important;
+      background: #F8F7F3 !important; border: 1.5px solid transparent !important; color: var(--ink) !important; font-size: 13px !important; font-weight: 600 !important;
+      transition: transform .3s var(--spring), background .25s ease, border-color .2s ease, color .2s ease !important;
+    }
+    .chip:hover { background: #EFEDE6 !important; transform: translateY(-2px); }
+    .chip:active { transform: scale(.95); }
+    .chip input { appearance: none; -webkit-appearance: none; width: 18px !important; height: 18px !important; border-radius: 50% !important; border: 1.5px solid rgba(18,20,28,.22) !important; background: #fff !important; padding: 0 !important; margin: 0; display: grid; place-items: center; transition: all .3s var(--spring) !important; }
+    .chip input:checked { background: var(--spark) !important; border-color: var(--spark) !important; }
+    .chip input:checked::after { content: "✓"; color: #fff; font-size: 11px; font-weight: 900; animation: pop .35s var(--spring) both; }
+    .chip:has(input:checked) { background: var(--spark-soft) !important; border-color: var(--spark) !important; animation: chipPop .4s var(--spring); }
+    .tabpanel.show .chip { animation: rise .5s var(--ease) both; }
+    .tabpanel.show .chip:nth-child(2) { animation-delay: .03s; } .tabpanel.show .chip:nth-child(3) { animation-delay: .06s; }
+    .tabpanel.show .chip:nth-child(4) { animation-delay: .09s; } .tabpanel.show .chip:nth-child(5) { animation-delay: .12s; }
+    .tabpanel.show .chip:nth-child(6) { animation-delay: .15s; } .tabpanel.show .chip:nth-child(7) { animation-delay: .18s; }
+    .tabpanel.show .chip:nth-child(n+8) { animation-delay: .21s; }
+    .tabpanel.show .model-option { animation: rise .55s var(--ease) both; }
+    .tabpanel.show .model-option:nth-child(2) { animation-delay: .05s; } .tabpanel.show .model-option:nth-child(3) { animation-delay: .1s; }
+    .tabpanel.show .model-option:nth-child(4) { animation-delay: .15s; } .tabpanel.show .model-option:nth-child(5) { animation-delay: .2s; }
+
+    /* 자료 카드 */
+    .source-card { border: 1.5px solid var(--line-soft) !important; border-radius: 18px !important; padding: 16px !important; transition: transform .35s var(--spring), border-color .2s ease, box-shadow .3s ease !important; }
+    .source-card:hover { transform: translateY(-3px) !important; box-shadow: 0 14px 28px rgba(18,20,28,.07) !important; border-color: rgba(18,20,28,.18) !important; }
+    .source-card:has(> label input:checked) { border-color: var(--spark) !important; background: linear-gradient(180deg, var(--spark-soft), #fff 70%) !important; }
+    .source-card input[type="checkbox"] { accent-color: var(--spark) !important; width: 18px !important; height: 18px !important; }
+    .template-box { border: 1.5px dashed rgba(18,20,28,.18) !important; background: #FAF9F6 !important; border-radius: 18px !important; transition: border-color .2s ease, background .2s ease; }
+    .template-box:hover { border-color: var(--spark) !important; background: var(--spark-soft) !important; }
+    .template-box::before { content: "＋ 학교 지도안 양식 올리기 (선택)" !important; color: var(--ink) !important; font-weight: 800 !important; }
+    .school-pack { border-radius: 18px !important; }
+
+    /* 아코디언 */
+    .accordion { background: transparent !important; border: 1px solid var(--line-soft) !important; border-radius: 16px !important; transition: background .25s ease; }
+    .accordion.open { background: #FAF9F6 !important; }
+    .acc-head { font-weight: 700 !important; font-size: 13.5px; color: var(--ink) !important; padding: 14px 18px !important; }
+    .acc-head::before { content: "✦"; color: var(--spark); margin-right: 2px; }
+    .acc-head { justify-content: flex-start !important; }
+    .acc-ico { margin-left: auto; color: var(--muted) !important; transition: transform .4s var(--spring) !important; }
+
+    /* ── 버튼 ── */
+    .primary {
+      position: relative; overflow: hidden; min-height: 58px !important; border-radius: 999px !important; font-size: 16px !important; font-weight: 800 !important; letter-spacing: -.02em;
+      background: var(--ink) !important; color: #fff !important; box-shadow: 0 14px 34px rgba(18,20,28,.22) !important;
+      transition: transform .35s var(--spring), box-shadow .3s ease, background .3s ease !important;
+    }
+    .primary:not(:disabled):hover { background: var(--spark) !important; transform: translateY(-3px) !important; box-shadow: 0 18px 44px rgba(255,90,44,.42) !important; filter: none !important; }
+    .primary:not(:disabled):active { transform: scale(.98) !important; }
+    #generateBtn:not(:disabled) { background: linear-gradient(100deg, var(--spark), var(--spark-2), var(--spark)) !important; background-size: 200% 100% !important; animation: sheen 5s ease-in-out infinite; box-shadow: 0 16px 44px rgba(255,90,44,.4) !important; }
+    #generateBtn:not(:disabled)::before {
+      content: ""; position: absolute; inset: 0; transform: translateX(-120%);
+      background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.4) 50%, transparent 70%); animation: shine 3.2s ease-in-out infinite;
+    }
+    /* 생성 중(비활성이지만 잠금은 아님): 흐르는 줄무늬 + 스피너 */
+    .primary:disabled:not(.locked) {
+      cursor: progress !important; color: #fff !important; opacity: 1;
+      background: repeating-linear-gradient(-45deg, var(--ink) 0 14px, #262936 14px 28px) !important; background-size: 40px 40px !important;
+      animation: stripes .8s linear infinite !important;
+    }
+    .primary:disabled:not(.locked)::after {
+      content: ""; display: inline-block; vertical-align: -3px; width: 16px; height: 16px; margin-left: 10px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.3); border-top-color: var(--spark); animation: spin .8s linear infinite;
+    }
+    .primary.locked, .primary:disabled.locked { background: #E8E6E0 !important; color: #A3A39C !important; }
+    .secondary, .mini-action, .recommend, .nb-open {
+      border-radius: 999px !important; border: 1.5px solid rgba(18,20,28,.14) !important; background: #fff !important; color: var(--ink) !important; font-weight: 700 !important;
+      transition: transform .3s var(--spring), background .2s ease, border-color .2s ease !important;
+    }
+    .secondary:hover, .mini-action:hover, .recommend:hover, .nb-open:hover { border-color: var(--ink) !important; background: #fff !important; transform: translateY(-2px); box-shadow: none !important; }
+    .recommend::before { content: "✦ "; color: var(--spark); }
+    #generateBtn { width: 100% !important; min-height: 66px !important; font-size: 17px !important; margin-top: 6px; }
+    .chips + .field, .chips + .recommend { margin-top: 18px !important; }
+    .notebook-box { margin-top: 28px !important; padding: 24px !important; border-radius: 20px !important; background: #FAF9F6 !important; border: 1px solid var(--line-soft) !important; }
+    .notebook-box .section-title h3 { font-size: 17px !important; }
+    .tab-footer { margin-top: 26px !important; padding-top: 20px; border-top: 1px dashed var(--line-soft); }
+    .complete-btn {
+      min-height: 50px !important; padding: 0 26px !important; border-radius: 999px !important; font-size: 14.5px; font-weight: 800 !important;
+      background: var(--ink) !important; box-shadow: 0 10px 26px rgba(18,20,28,.2) !important;
+      transition: transform .35s var(--spring), background .3s ease, box-shadow .3s ease !important;
+    }
+    .complete-btn:not(.is-done)::after { content: "→"; display: inline-block; margin-left: 6px; transition: transform .35s var(--spring); }
+    .complete-btn:hover { transform: translateY(-2px) !important; background: var(--spark) !important; box-shadow: 0 14px 30px rgba(255,90,44,.38) !important; filter: none !important; }
+    .complete-btn:hover::after { transform: translateX(4px); }
+    .complete-btn.is-done { background: var(--ok) !important; box-shadow: 0 10px 26px rgba(18,184,134,.28) !important; animation: pop .45s var(--spring); }
+    .uncomplete-btn { min-height: 50px !important; border-radius: 999px !important; border: 1.5px solid rgba(18,20,28,.14) !important; color: var(--ink) !important; font-weight: 700 !important; }
+    .gen-warning { background: var(--spark-soft) !important; color: #B93A12 !important; border: 0 !important; border-radius: 14px !important; font-weight: 600 !important; padding: 12px 16px !important; animation: nudge .6s var(--ease); }
+    .save-status { text-align: center; color: var(--muted); font-size: 12px; }
+    .icon-btn { border-radius: 999px !important; }
+
+    /* ── 미리보기 ── */
+    .reveal.open .panel.preview { animation: riseBig .9s var(--ease) both; }
+    .reveal-head h2 { border: 0 !important; font-size: 28px !important; font-weight: 800; letter-spacing: -.04em; color: var(--ink) !important; }
+    .reveal-head h2::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 12px; vertical-align: 4px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 5px var(--ok-soft); }
+    .panel.preview { background: #fff !important; }
+    .lesson { background: var(--paper) !important; }
+
+    /* ── 모달·토스트·로그인 ── */
+    .modal-overlay { background: rgba(13,15,22,.55) !important; backdrop-filter: blur(8px) !important; animation: fadeIn .25s ease both; }
+    .modal-card { border-radius: 24px !important; animation: modalIn .45s var(--spring) both; }
+    .modal-head h3 { color: var(--ink) !important; font-weight: 800; letter-spacing: -.03em; }
+    .help-choice { background: var(--paper) !important; border: 1.5px solid transparent !important; color: var(--ink) !important; border-radius: 18px !important; transition: transform .35s var(--spring), border-color .2s ease !important; }
+    .help-choice:hover { transform: translateY(-4px) !important; border-color: var(--ink) !important; box-shadow: none !important; }
+    .archive-item { border-radius: 14px !important; }
+    .archive-item:hover { background: #FAF9F6 !important; border-color: rgba(18,20,28,.2) !important; box-shadow: none !important; }
+    .toast {
+      background: var(--ink) !important; border-radius: 999px !important; padding: 13px 20px !important; font-weight: 700 !important;
+      box-shadow: 0 16px 40px rgba(13,15,22,.3); transform: translateX(-50%) translateY(24px) scale(.92) !important;
+      transition: opacity .3s ease, transform .45s var(--spring) !important;
+    }
+    .toast::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 10px; border-radius: 50%; background: var(--ok); vertical-align: 1px; }
+    .toast.show { transform: translateX(-50%) translateY(0) scale(1) !important; }
+    body:not(.authed) .login-gate { background: var(--stage) !important; overflow: hidden; }
+    body:not(.authed) .login-gate::before {
+      content: ""; position: absolute; width: 900px; height: 900px; left: 50%; top: 50%; margin: -450px 0 0 -450px; border-radius: 50%;
+      background: conic-gradient(from 0deg, #FF5A2C, #FF9A1F, #FFD166, #2EC4B6, #3A86FF, #FF5A2C); filter: blur(110px); opacity: .35;
+      animation: aurora 24s linear infinite;
+    }
+    .login-card { position: relative; border-radius: 28px !important; padding: 44px 36px 28px !important; animation: modalIn .7s var(--spring) both !important; }
+    .login-mark { background: var(--ink) !important; box-shadow: none !important; border-radius: 20px !important; }
+    .login-card h2 { color: var(--ink) !important; font-weight: 800; letter-spacing: -.035em; font-size: 23px !important; }
+    .login-desc b { color: var(--spark) !important; }
+
+    /* ── 키프레임 ── */
+    @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+    @keyframes riseBig { from { opacity: 0; transform: translateY(40px) scale(.98); } to { opacity: 1; transform: none; } }
+    @keyframes panelIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes modalIn { from { opacity: 0; transform: translateY(24px) scale(.95); } to { opacity: 1; transform: none; } }
+    @keyframes wordIn { from { opacity: 0; transform: translateY(40%) rotate(2deg); filter: blur(8px); } to { opacity: 1; transform: none; filter: none; } }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: none; } }
+    @keyframes aurora { to { transform: rotate(360deg); } }
+    @keyframes sheen { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+    @keyframes shine { 0% { transform: translateX(-120%); } 45%, 100% { transform: translateX(120%); } }
+    @keyframes travel { 0% { top: 30px; opacity: 0; } 8% { opacity: 1; } 88% { opacity: 1; } 100% { top: calc(100% - 38px); opacity: 0; } }
+    @keyframes nodeLit { 0%, 12% { background: var(--spark); border-color: var(--spark); box-shadow: 0 0 20px rgba(255,90,44,.7); } 26%, 100% { background: var(--stage); border-color: rgba(255,255,255,.28); box-shadow: none; } }
+    @keyframes sparkPing { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
+    @keyframes okPulse { 0% { box-shadow: 0 0 0 0 rgba(18,184,134,.5); } 100% { box-shadow: 0 0 0 8px rgba(18,184,134,0); } }
+    @keyframes pop { 0% { transform: scale(.4); } 100% { transform: scale(1); } }
+    @keyframes chipPop { 0% { transform: scale(.94); } 60% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    @keyframes nudge { 0%, 100% { transform: none; } 25% { transform: translateX(-5px); } 50% { transform: translateX(4px); } 75% { transform: translateX(-2px); } }
+    @keyframes stripes { to { background-position: 40px 0; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── 모바일 ── */
+    @media (max-width: 860px) {
+      .topbar { position: relative !important; }
+      .topbar-inner { padding: 10px 16px; }
+      .topbar h1 { font-size: 14px; white-space: normal; }
+      .workspace { padding: 14px 12px 28px !important; }
+      .panel.hero { padding: 34px 22px !important; gap: 0 !important; min-height: 0; border-radius: 24px !important; }
+      .hero h2 { font-size: clamp(34px, 10vw, 46px) !important; }
+      .hero > div > p { font-size: 14.5px !important; }
+      .hero::before { width: 480px; height: 480px; right: -220px; top: -240px; }
+      .pipeline { margin-top: 30px !important; }
+      .tabnav { top: 0; position: relative; border-radius: 18px; padding: 5px !important; }
+      .tab { flex: 0 0 auto !important; padding: 9px 12px !important; }
+      .section { padding: 22px 18px !important; border-radius: 20px !important; }
+      .section-title h2, .section-title h3 { font-size: 18px !important; }
+      .model-list { grid-template-columns: 1fr 1fr !important; }
+      .model-option { min-height: 0 !important; }
+      .tab-footer { flex-wrap: wrap; }
+      .complete-btn { flex: 1 1 auto; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+      .pipeline::after, .hero::before { display: none; }
+    }
+  </style>
 </head>
 <body>
   <div class="login-gate" id="loginGate" aria-hidden="false">
@@ -1958,9 +2386,9 @@
     <main class="workspace builder-collapsed">
       <section class="panel hero">
         <div>
-          <span class="hero-kicker">꿈it(잇)다 기반 진로 연계 교과 수업</span>
-          <h2>교과 성취기준을 진로 탐색 활동으로 연결해 교수·학습 과정안을 완성합니다</h2>
-          <p>꿈it(잇)다 수업 흐름, 진로교육 요소, 에듀테크 활용, 학교 지도안 양식을 함께 반영해 교과 수업이 학생의 진로 탐색과 실제 활동으로 이어지도록 설계하는 도구입니다.</p>
+          <span class="hero-kicker">꿈it(잇)다 · 진로 연계 교과 수업</span>
+          <h2><span class="w">교과 수업에</span><br><span class="w">진로를 <em>잇다.</em></span></h2>
+          <p>성취기준만 고르면 AI가 진로 연계 교수·학습 과정안 초안을 완성합니다.</p>
           <div class="mission-tags" aria-label="도구 핵심 목적">
             <span>꿈it(잇)다 수업 모형</span>
             <span>진로 연계 교과 수업</span>
@@ -1973,11 +2401,11 @@
           </div>
         </div>
         <div class="pipeline" aria-label="꿈it 진로 연계 지도안 작성 흐름">
-          <div class="pipe-step"><b>1</b><span>교과와 2022 개정 성취기준 선택</span></div>
-          <div class="pipe-step"><b>2</b><span>꿈it(잇)다 수업 유형과 진로교육 요소 설정</span></div>
-          <div class="pipe-step"><b>3</b><span>관련 자료와 학교 지도안 양식 반영</span></div>
-          <div class="pipe-step"><b>4</b><span>AI가 진로 연계 수업 흐름 초안 생성</span></div>
-          <div class="pipe-step"><b>5</b><span>교사가 검토 후 지도안 문서로 내려받기</span></div>
+          <div class="pipe-step"><b>1</b><span>교과 · 성취기준 선택</span></div>
+          <div class="pipe-step"><b>2</b><span>수업 유형 · 진로 요소</span></div>
+          <div class="pipe-step"><b>3</b><span>자료 · 학교 양식 반영</span></div>
+          <div class="pipe-step"><b>4</b><span>AI 초안 생성</span></div>
+          <div class="pipe-step"><b>5</b><span>검토 후 Word 저장</span></div>
         </div>
       </section>
 
@@ -9340,6 +9768,31 @@ ${data.promptText}
 
       updateTabStyles();
       checkGenerateButton();
+    })();
+
+    /* ===== 스테이지 테마 모션(디자인 전용 — 기능 로직과 무관) ===== */
+    (function () {
+      // 긴 안내문은 한 줄로 접혀 있고 클릭하면 펼친다(링크·입력 클릭은 제외).
+      document.addEventListener("click", (e) => {
+        const tip = e.target.closest(".hint, .prompt-note, #templateStatus");
+        if (tip && !e.target.closest("a, input, button, textarea, select")) tip.classList.toggle("open");
+      });
+      // 단계 탭 아래 진행 바: 완료된 탭 수 비율
+      const nav = document.getElementById("tabnav");
+      if (nav) {
+        const sync = () => nav.style.setProperty("--p", nav.querySelectorAll(".tab.done").length / nav.querySelectorAll(".tab").length);
+        new MutationObserver(sync).observe(nav, { subtree: true, attributes: true, attributeFilter: ["class"] });
+        sync();
+      }
+      // 히어로 커서 스포트라이트
+      const hero = document.querySelector(".hero");
+      if (hero && matchMedia("(pointer: fine)").matches) {
+        hero.addEventListener("pointermove", (e) => {
+          const r = hero.getBoundingClientRect();
+          hero.style.setProperty("--mx", ((e.clientX - r.left) / r.width * 100) + "%");
+          hero.style.setProperty("--my", ((e.clientY - r.top) / r.height * 100) + "%");
+        });
+      }
     })();
   </script>
 </body>
