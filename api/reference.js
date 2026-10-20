@@ -21,7 +21,7 @@ function setCors(res) {
 }
 
 function sbHeaders(key, extra) {
-  return Object.assign({ apikey: key, Authorization: `Bearer ${key}`, "content-type": "application/json" }, extra || {});
+  return Object.assign({ apikey: key, "content-type": "application/json" }, extra || {});
 }
 
 module.exports = async (req, res) => {

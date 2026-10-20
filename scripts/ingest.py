@@ -174,7 +174,7 @@ def embed(texts, api_key):
 
 
 def sb_headers(key, extra=None):
-    h = {"apikey": key, "Authorization": f"Bearer {key}", "content-type": "application/json"}
+    h = {"apikey": key, "content-type": "application/json"}
     if extra:
         h.update(extra)
     return h

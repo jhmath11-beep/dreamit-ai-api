@@ -7175,14 +7175,24 @@
     // 과목별 NotebookLM 주소는 metan-portal의 dreamit-chatbot-menu.html을 '단일 원본'으로 삼아
     // 페이지 로딩 시 자동으로 읽어옵니다(loadNotebookLinks). 아래 값은 읽기 실패 시 쓰는 fallback.
     // → 선생님은 dreamit-chatbot-menu.html만 고쳐 커밋하면 이 사이트에도 자동 반영됩니다.
+    // ponytail: jbot.kr은 portal-gate(로그인 게이트) 뒤라 위 fetch가 포털 첫 화면을 받아 파싱에 실패한다.
+    // 그래서 사실상 이 목록이 쓰인다 — dreamit-chatbot-menu.html의 subjects를 고치면 여기도 같이 고칠 것.
     let notebookLinks = {
       "국어": "https://notebooklm.google.com/notebook/10a82824-ec02-49e2-b23e-5c5520f0979e/preview",
+      "수학": "https://notebooklm.google.com/notebook/ecca1f41-66b9-4251-8034-400497e896c6/preview",
       "영어": "https://notebooklm.google.com/notebook/86c0341f-f9f2-4479-b058-611541a26316/preview",
       "과학": "https://notebooklm.google.com/notebook/8366fd89-e4e3-4139-af28-80aceeb67ae2/preview",
       "사회": "https://notebooklm.google.com/notebook/8ef5762d-46d4-4180-9b5c-5f8e747fa59e/preview",
+      "역사": "https://notebooklm.google.com/notebook/d69cd46a-cee6-49db-9a89-9b2682c8e1a1/preview",
       "도덕": "https://notebooklm.google.com/notebook/c5e0a22b-8c11-4d67-81bc-63c1fcd8b03f/preview",
+      "한문": "https://notebook.google.com/notebook/45131912-49eb-4090-9427-d856c0038755?original_referer=https:%2F%2Faccounts.google.com%23",
+      "생활외국어": "https://notebooklm.google.com/notebook/4a51a2e0-152d-419d-b228-c78e8364c6bc/preview",
+      "음악": "https://notebooklm.google.com/notebook/ee024ed2-b000-4dfc-9f73-235481b7ded6/preview",
       "미술": "https://notebooklm.google.com/notebook/46acd8c3-7ebf-4a54-9b88-a5ef61ba6ca9/preview",
-      "생활외국어": "https://notebooklm.google.com/notebook/4a51a2e0-152d-419d-b228-c78e8364c6bc/preview"
+      "체육": "https://notebooklm.google.com/notebook/a2ad5dd9-ade2-48f1-8457-a39b567c7933/preview",
+      "기술가정": "https://notebooklm.google.com/notebook/3e4429a7-f2bb-49a2-9a30-085749a10dab/preview",
+      "진로와 직업": "https://notebooklm.google.com/notebook/064f0a62-c11b-45e8-b4a6-3a023f61ac9b/preview",
+      "정보": "https://notebooklm.google.com/notebook/b3206c68-b1a6-4284-9169-5ed7d6104ac6/preview"
     };
     let notebookFallback = "https://notebooklm.google.com/notebook/ecca1f41-66b9-4251-8034-400497e896c6/preview";
     // 원본으로 읽어올 파일(metan-portal / jbot.kr). 과목 배열(subjects)과 defaultNotebookUrl을 파싱.

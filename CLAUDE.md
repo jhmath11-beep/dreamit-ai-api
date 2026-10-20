@@ -35,7 +35,9 @@ Vercel 서버리스 함수(Node ≥18, 무빌드·무의존성). git repo: `jhma
 
 ## 배포
 - Vercel 프로젝트 `dreamit-ai-api`(`.vercel/project.json` 연동). 함수 주소 `https://dreamit-ai-api.vercel.app/api/generate`.
-- **`git push origin main` 하면 자동 배포된다**(2026-08-21 확인: 푸시 직후 반영). Vercel CLI는 안 깔려 있어도 됨.
+- **(2026-10-21) 커밋 정리 완료 — `git push origin main`으로 배포한다.** 10-16부터 CLI로만 올라가 있던 `api/mr.js`·`api/gongmun.js`·NotebookLM 링크·Supabase 헤더 수정을 모두 커밋함. 앞으로 CLI(`vercel --prod`)로 미커밋 파일을 올리지 말 것(git과 라이브가 다시 어긋난다).
+- `api/mr.js`·`api/gongmun.js`의 `FIREBASE_WEB_KEY` 기본값은 Firebase **웹** 키(공개용, metan-portal HTML에도 있음)라 커밋해도 유출 아님. 환경변수 `MR_FIREBASE_WEB_KEY`로 덮어쓸 수 있음.
+- **vercel CLI는 `.gitignore`를 읽지 않는다.** 배포 제외는 `.vercelignore`만 본다. 2026-09-17~10-16 동안 `scripts/.env`(OpenAI·Supabase 키)·`.claude/`·`_inbox/`가 공개 노출됐었다. 새 비공개 파일·폴더를 만들면 `.vercelignore`에도 추가할 것.
 - 환경변수(값 절대 읽지 말 것): `OPENAI_API_KEY`(필수), `OPENAI_MODEL`(선택),
   `GOOGLE_CLIENT_ID`(필수·로그인), `ALLOWED_EMAIL_DOMAINS`(기본 goedu.kr), `ALLOWED_EMAILS`,
   `SUPABASE_URL`·`SUPABASE_SERVICE_KEY`(참고자료 기능), `REFERENCE_ADMIN_TOKEN`(선택).

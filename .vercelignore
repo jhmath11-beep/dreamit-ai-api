@@ -1,0 +1,10 @@
+# vercel CLI는 .gitignore를 읽지 않는다 — 여기 없으면 그대로 공개 배포된다(2026-10-16 scripts/.env 노출 사고).
+.env*
+**/.env*
+scripts/
+_inbox/
+.claude/
+*.py
+*.sql
+CLAUDE.md
+__pycache__/
